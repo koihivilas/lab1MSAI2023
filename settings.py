@@ -42,30 +42,15 @@ THUMBNAIL_MARGIN_Y = 8 # margin of the thumbnail from mouse cursor (default)
 
 DEPTH_LIMIT = 10 # depth limit for DFS (default)
 
-# Uninformed search algorithms
-BFS = "BFS"
-DFS = "DFS"
-DFS_DEPTH_LIMITED = "DFS Depth Limited"
-BI_DIRECTIONAL = "Bi-Directional"
-
-# Informed search algorithms
-GREEDY = "Greedy"
-A_STAR = "A*"
-A_STAR_ITERATIVE = "A* Iterative"
-JPS = "JPS"
-
-GUI_PADDING = 100 # padding of the GUI (default) (bottom of the screen?)
-
 class Settings:
     # Grid and GUI
     rows = ROWS
     cols = COLS
-    gui_padding = GUI_PADDING
 
     # Pygame
     width = WIDTH
     height = HEIGHT
-    window = pygame.display.set_mode((width, height + gui_padding))
+    window = pygame.display.set_mode((width, height))
     caption = pygame.display.set_caption("Path Finding Visualization")
 
     # States (colors)
@@ -94,10 +79,6 @@ class Settings:
 
     # For DFS
     depth_limit = DEPTH_LIMIT
-
-    # Algorithm settings
-    algorithm = BFS # default
-    #algorithms[]?
 
     def get_node_size():
         return Settings.width // Settings.cols if (Settings.width > Settings.height) else Settings.height // Settings.rows

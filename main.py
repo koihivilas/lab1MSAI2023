@@ -512,16 +512,16 @@ def main(window, width, height):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and start:
                     # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    end = choose_end_node(treasures)
-                    if end:
-                        for row in grid:
-                            for node in row:
-                                node.update_neighbors(grid)
+                    # end = choose_end_node(treasures)
+                    # if end:
+                    #     for row in grid:
+                    #         for node in row:
+                    #             node.update_neighbors(grid)
                         
-                        reset_map_state(grid)
-                        for treasure in treasures:
-                            treasure.set_state(st.treasure)
-                        bi_directional(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
+                    #     reset_map_state(grid)
+                    #     for treasure in treasures:
+                    #         treasure.set_state(st.treasure)
+                    #     bi_directional(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
 
                     # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # for row in grid:
@@ -557,16 +557,16 @@ def main(window, width, height):
                     # end = bfs(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start)
 
                     # for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # end = choose_end_node(treasures)
-                    # if end:
-                    #     for row in grid:
-                    #         for node in row:
-                    #             node.update_neighbors(grid)
+                    end = choose_end_node(treasures)
+                    if end:
+                        for row in grid:
+                            for node in row:
+                                node.update_neighbors(grid)
                         
-                    #     reset_map_state(grid)
-                    #     for treasure in treasures:
-                    #         treasure.set_state(st.treasure)
-                    #     astar(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
+                        reset_map_state(grid)
+                        for treasure in treasures:
+                            treasure.set_state(st.treasure)
+                        astar(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
 
                     # for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # end = choose_end_node(treasures)
@@ -583,7 +583,7 @@ def main(window, width, height):
                 if event.key == pygame.K_c:
                     start = None
                     end = None
-                    grid = make_grid(st.rows, width, height)
+                    grid = make_grid(st.rows, st.cols, st.get_node_size())
                 
                 if event.key == pygame.K_r:
                     reset_map_state(grid)
