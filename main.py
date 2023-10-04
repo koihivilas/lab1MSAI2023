@@ -5,7 +5,12 @@ import random
 from queue import PriorityQueue, Queue, LifoQueue
 from settings import Settings as st
 from thumbnail import Thumbnail
+from table import Table
 from node import Node
+from window import Window
+from map_field_states import Map_field_state
+from map import Map
+from event_types import Event_type
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
 def heuristics(point1, point2):
@@ -457,6 +462,14 @@ def set_node_state(start, node, thumbnail_state, treasures):
         if node != start and node not in treasures:
             node.set_state(st.exit)
 
+def set_node_state(start, node, thumbnail_state, treasures):
+    if thumbnail_state == st.start and start:
+        return
+    if node != start and node not in treasures:
+        node.set_state(thumbnail_state)
+        if thumbnail_state == st.treasure:
+            treasures.append(node)
+
 def reset_node(node, treasures):
     if node.has_state(st.treasure):
         treasures.remove(node)
@@ -470,7 +483,18 @@ def choose_end_node(treasures):
         return None
 
 def main(window, width, height):
-    grid = make_grid(st.rows, st.cols, st.get_node_size())
+    map = Map(st.rows, st.cols)
+
+    #UI
+    thumbnail = Thumbnail(Map_field_state.START, 
+                          st.thumbnail_size, st.thumbnail_margin_x, st.thumbnail_margin_y, 
+                          possible_states = [Map_field_state.START, Map_field_state.TREASURE, Map_field_state.EXIT])
+    
+    node_size = st.get_node_size()
+    table = Table(0, 0, st.cols * node_size, st.rows * node_size, node_size, data_source = map, mouse_thumbnail = thumbnail)
+
+    main_window = Window(window, width, height)
+    main_window.add_element(table, 1)
 
     start = None
     end = None # for bfs not necessary
@@ -479,49 +503,40 @@ def main(window, width, height):
 
     run = True
 
-    thumbnail = Thumbnail(st.start, st.thumbnail_size, st.thumbnail_margin_x, st.thumbnail_margin_y, [st.start, st.treasure, st.exit])
-
     while run:
-        draw(window, grid, st.rows, st.cols, width, height, thumbnail)
-
+        main_window.draw()
+        #TODO: Make EventHandler class
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
 
             if event.type == pygame.MOUSEWHEEL:
-                thumbnail.change_state(event.y)
-
-            pos_x, pos_y = pygame.mouse.get_pos()
+                if main_window.is_coordinates_in_boundaries(pos_x, pos_y):
+                    main_window.event(Event_type.MOUSE_WHEEL, y = event.y)
 
             if pygame.mouse.get_pressed()[0]: # left click
-                if pos_x < st.width and pos_y < st.height:
-                    node = get_clicked_node(grid, st.get_node_size())
-                    set_node_state(start, node, thumbnail.get_state(), treasures)
-
-                    if node.has_state(st.start):
-                        start = node
-
+                pos_x, pos_y = pygame.mouse.get_pos()
+                if main_window.is_coordinates_in_boundaries(pos_x, pos_y):
+                    main_window.event(Event_type.BUTTON_LEFT_PRESSED, x = pos_x, y = pos_y)
+                                        
             elif pygame.mouse.get_pressed()[2]: # right click
-                if pos_x < st.width and pos_y < st.height:
-                    node = get_clicked_node(grid, st.get_node_size())
-                    reset_node(node, treasures)
-
-                    if node == start:
-                        start = None
+                pos_x, pos_y = pygame.mouse.get_pos()
+                if main_window.is_coordinates_in_boundaries(pos_x, pos_y):
+                    main_window.event(Event_type.BUTTON_RIGHT_PRESSED, x = pos_x, y = pos_y)
             
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and start:
+                # if event.key == pygame.K_SPACE and start:
                     # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    end = choose_end_node(treasures)
-                    if end:
-                        for row in grid:
-                            for node in row:
-                                node.update_neighbors(grid)
+                    # end = choose_end_node(treasures)
+                    # if end:
+                    #     for row in grid:
+                    #         for node in row:
+                    #             node.update_neighbors(grid)
                         
-                        reset_map_state(grid)
-                        for treasure in treasures:
-                            treasure.set_state(st.treasure)
-                        bi_directional(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
+                    #     reset_map_state(grid)
+                    #     for treasure in treasures:
+                    #         treasure.set_state(st.treasure)
+                    #     bi_directional(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
 
                     # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # for row in grid:
@@ -581,14 +596,10 @@ def main(window, width, height):
                     #     greedy(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
             
                 if event.key == pygame.K_c:
-                    start = None
-                    end = None
-                    grid = make_grid(st.rows, width, height)
+                    map.clear()
                 
                 if event.key == pygame.K_r:
-                    reset_map_state(grid)
-                    for treasure in treasures:
-                            treasure.set_state(st.treasure)
+                    map.reset()
 
     pygame.quit()
 

@@ -1,17 +1,28 @@
 import pygame
+from element import Element
+from event_types import Event_type
 
-# TODO: it should be singleton, but I don't know how to do it in python
-class Thumbnail:
+class Thumbnail(Element):
     def __init__(self, state, size, margin_x, margin_y, possible_states):
+        super().__init__(margin_x, margin_y, size, size)
         self.state = state
-        self.size = size
-        self.margin_x = margin_x
-        self.margin_y = margin_y
         self.possible_states = possible_states
-        
+
+    def get_x(self):
+        pos_x, _ = pygame.mouse.get_pos()
+        return pos_x + super().get_x()
+    
+    def get_y(self):
+        _, pos_y = pygame.mouse.get_pos()
+        return pos_y + super().get_y()
+
     def draw(self, window):
-        pos_x, pos_y = pygame.mouse.get_pos()
-        pygame.draw.rect(window, self.state, (pos_x + self.margin_x, pos_y + self.margin_y, self.size, self.size))
+        color = self.state.value
+        pygame.draw.rect(window, color, (self.get_x(), self.get_y(), self.get_width(), self.get_height()))
+
+    def event(self, event_type, **kwargs):
+        if(event_type == Event_type.MOUSE_WHEEL):
+            self.change_state(kwargs['y'])
 
     def get_state(self):
         return self.state

@@ -23,6 +23,7 @@ YELLOW = (255, 255, 0) # Color of the path nodes (default)
 PATH = YELLOW
 
 WHITE = (255, 255, 255) # Color of the empty nodes (default)
+EMPTY = WHITE
 LIGHT_GREY = (195, 195, 195) # Color of the grid (default)
 
 HAS_STEP_DELAY = False
@@ -75,10 +76,17 @@ class Settings:
     start = START
     treasure = TREASURE
     path = PATH
+    empty = EMPTY
 
     # Colors
     white = WHITE
+    gray = GREY
     light_grey = LIGHT_GREY
+    light_blue = LIGHT_BLUE
+    light_green = LIGHT_GREEN
+    smooth_green = SMOOTH_GREEN
+    red_orange = RED_ORANGE
+    yellow = YELLOW
 
     # Delays
     has_step_delay = HAS_STEP_DELAY
