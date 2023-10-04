@@ -533,6 +533,19 @@ def main(window, width, height):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and True:
+                    map.reset()
+                    alg = StateMashine(map)
+
+                    s = State(Agent(map.get_start()))
+
+                    #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    #algoritm = alg.bfs
+                    #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    algoritm = alg.astar
+
+                    for _ in algoritm(s):
+                        main_window.draw()
+                        #time.sleep(2)
                     # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # end = choose_end_node(treasures)
                     # if end:
@@ -568,14 +581,7 @@ def main(window, width, height):
                     # end = dfs(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start)
 
                     # for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    map.reset()
-                    alg = StateMashine(map)
-
-                    s = State(Agent(map.get_start()))
-                    for _ in alg.bfs(s):
-                        main_window.draw()
-                        #time.sleep(2)
-                    #end = bfs(lambda: main_window.draw(), map)
+                    
 
                     # for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # end = choose_end_node(treasures)

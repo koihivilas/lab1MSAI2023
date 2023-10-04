@@ -53,6 +53,9 @@ class Map:
 
     def is_treasure_position(self, position : Position):
         return self.__table[position.y][position.x].get_state() == Map_field_state.TREASURE
+    
+    def get_treasure_positions(self):
+        return self.__trasures_positions
 
     def set_node_state(self, node_row, node_column, new_state):
         node = self.__table[node_row][node_column]
