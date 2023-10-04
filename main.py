@@ -11,6 +11,9 @@ from window import Window
 from map_field_states import Map_field_state
 from map import Map
 from event_types import Event_type
+from algorithms import Algorythms
+from state import State
+from agent import Agent
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
 def heuristics(point1, point2):
@@ -22,14 +25,14 @@ def bi_reconstruct_path(came_from, current, draw):
     while current in came_from:
         current.set_state(st.path)
         current = came_from[current]
-    
+
     draw()
 
 def reconstruct_path(came_from, current, draw):
     while current in came_from:
         current = came_from[current]
         current.set_state(st.path)
-    
+
     draw()
 
 def clear_path(came_from, current, draw):
@@ -39,7 +42,7 @@ def clear_path(came_from, current, draw):
     while current in came_from:
         current = came_from[current]
         current.set_state(st.closed)
-    
+
     draw()
 
 def bfs_clear_path(grid, draw):
@@ -47,7 +50,7 @@ def bfs_clear_path(grid, draw):
         for node in row:
             if node.has_state(st.path):
                 node.set_state(st.closed)
-    
+
     draw()
 
 def count_path_length(came_from, current):
@@ -55,7 +58,7 @@ def count_path_length(came_from, current):
     while current in came_from:
         current = came_from[current]
         length += 1
-    
+
     return length
 
 def reset_map_state(grid):
@@ -85,7 +88,7 @@ def astar(draw, grid, start, end):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-        
+
         current = open_set.get()[2]
         open_set_hash.remove(current)
 
@@ -94,7 +97,7 @@ def astar(draw, grid, start, end):
             start.set_state(st.start)
             end.set_state(st.treasure)
             return True
-        
+
         for neighbor in current.neighbors:
             if st.shows_current_path:
                 reconstruct_path(came_from, neighbor, draw)
@@ -112,17 +115,17 @@ def astar(draw, grid, start, end):
                     open_set.put((f_score[neighbor], count, neighbor))
                     open_set_hash.add(neighbor)
                     neighbor.set_state(st.open)
-            
+
             if st.shows_current_path:
                 clear_path(came_from, neighbor, draw)
                 start.set_state(st.start)
                 end.set_state(st.treasure)
-            
+
         draw()
 
         if current != start:
             current.set_state(st.closed)
-        
+
     return False
 
 # TODO: neighbors system is somehow broken and recalculating paths is not working properly (just visually)
@@ -147,7 +150,7 @@ def greedy(draw, grid, start, end):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-        
+
         current = open_set.get()[2]
         open_set_hash.remove(current)
 
@@ -156,7 +159,7 @@ def greedy(draw, grid, start, end):
             start.set_state(st.start)
             end.set_state(st.treasure)
             return True
-        
+
         for neighbor in current.neighbors:
             if st.shows_current_path:
                 reconstruct_path(came_from, neighbor, draw)
@@ -174,21 +177,24 @@ def greedy(draw, grid, start, end):
                     open_set.put((f_score[neighbor], count, neighbor))
                     open_set_hash.add(neighbor)
                     neighbor.set_state(st.open)
-            
+
             if st.shows_current_path:
                 clear_path(came_from, neighbor, draw)
                 start.set_state(st.start)
                 end.set_state(st.treasure)
-            
+
         draw()
 
         if current != start:
             current.set_state(st.closed)
-        
+
     return False
 
-def bfs(draw, grid, start):
+def bfs(draw, map):
     end = None
+
+    start = map.get_start()
+    grid = map.get_table()
 
     open_set = Queue()
     open_set.put(start)
@@ -225,16 +231,16 @@ def bfs(draw, grid, start):
                 open_set.put(neighbor)
                 if not neighbor.has_state(st.treasure):
                     neighbor.set_state(st.open)
-            
+
             if st.shows_current_path:
                 bfs_clear_path(grid, draw)
                 start.set_state(st.start)
-            
+
         draw()
 
         if current != start:
             current.set_state(st.closed)
-        
+
     return None
 
 def dfs(draw, grid, start):
@@ -271,12 +277,12 @@ def dfs(draw, grid, start):
                 open_set.put(neighbor)
                 if not neighbor.has_state(st.treasure):
                     neighbor.set_state(st.open)
-            
+
         draw()
 
         if current != start:
             current.set_state(st.closed)
-        
+
     return None
 
 # not really sure if it's correct version
@@ -318,12 +324,12 @@ def dfs_depth_limited(draw, grid, start, depth_limit):
                 open_set.put(neighbor)
                 if not neighbor.has_state(st.treasure):
                     neighbor.set_state(st.open)
-            
+
         draw()
 
         if current != start:
             current.set_state(st.closed)
-        
+
     return None
 
 def bi_directional(draw, grid, start, end):
@@ -371,17 +377,17 @@ def bi_directional(draw, grid, start, end):
                 start_visited.append(neighbor)
                 if not neighbor.has_state(st.treasure):
                     neighbor.set_state(st.open)
-            
+
             if st.shows_current_path:
                 bfs_clear_path(grid, draw)
                 start.set_state(st.start)
-            
+
         draw()
 
         if start_current != start:
             start_current.set_state(st.closed)
             start_visited.append(start_current)
-        
+
         for neighbor in end_current.neighbors:
             if st.shows_current_path:
                 reconstruct_path(end_came_from, neighbor, draw)
@@ -393,17 +399,17 @@ def bi_directional(draw, grid, start, end):
                 end_visited.append(neighbor)
                 if not neighbor.has_state(st.start):
                     neighbor.set_state(st.open)
-            
+
             if st.shows_current_path:
                 bfs_clear_path(grid, draw)
                 end.set_state(st.treasure)
-            
+
         draw()
 
         if end_current != end:
             end_current.set_state(st.closed)
             end_visited.append(end_current)
-        
+
     return False
 
 def make_grid(rows, cols, node_size):
@@ -419,7 +425,7 @@ def make_grid(rows, cols, node_size):
 def draw_grid(window, rows, cols, node_size, width, height):
     for i in range(rows + 1):
         pygame.draw.line(window, st.light_grey, (0, i * node_size), (width, i * node_size))
-    
+
     for i in range(cols):
         pygame.draw.line(window, st.light_grey, (i * node_size, 0), (i * node_size, height))
 
@@ -443,11 +449,11 @@ def get_clicked_pos(pos, node_size):
     col = x // node_size
 
     return row, col
-    
+
 def get_clicked_node(grid, node_size):
     pos = pygame.mouse.get_pos()
     row, col = get_clicked_pos(pos, node_size)
-    
+
     return grid[row][col]
 
 def set_node_state(start, node, thumbnail_state, treasures):
@@ -486,10 +492,10 @@ def main(window, width, height):
     map = Map(st.rows, st.cols)
 
     #UI
-    thumbnail = Thumbnail(Map_field_state.START, 
-                          st.thumbnail_size, st.thumbnail_margin_x, st.thumbnail_margin_y, 
+    thumbnail = Thumbnail(Map_field_state.START,
+                          st.thumbnail_size, st.thumbnail_margin_x, st.thumbnail_margin_y,
                           possible_states = [Map_field_state.START, Map_field_state.TREASURE, Map_field_state.EXIT])
-    
+
     node_size = st.get_node_size()
     table = Table(0, 0, st.cols * node_size, st.rows * node_size, node_size, data_source = map, mouse_thumbnail = thumbnail)
 
@@ -511,6 +517,7 @@ def main(window, width, height):
                 run = False
 
             if event.type == pygame.MOUSEWHEEL:
+                pos_x, pos_y = pygame.mouse.get_pos()
                 if main_window.is_coordinates_in_boundaries(pos_x, pos_y):
                     main_window.event(Event_type.MOUSE_WHEEL, y = event.y)
 
@@ -518,21 +525,21 @@ def main(window, width, height):
                 pos_x, pos_y = pygame.mouse.get_pos()
                 if main_window.is_coordinates_in_boundaries(pos_x, pos_y):
                     main_window.event(Event_type.BUTTON_LEFT_PRESSED, x = pos_x, y = pos_y)
-                                        
+
             elif pygame.mouse.get_pressed()[2]: # right click
                 pos_x, pos_y = pygame.mouse.get_pos()
                 if main_window.is_coordinates_in_boundaries(pos_x, pos_y):
                     main_window.event(Event_type.BUTTON_RIGHT_PRESSED, x = pos_x, y = pos_y)
-            
+
             if event.type == pygame.KEYDOWN:
-                # if event.key == pygame.K_SPACE and start:
+                if event.key == pygame.K_SPACE and True:
                     # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # end = choose_end_node(treasures)
                     # if end:
                     #     for row in grid:
                     #         for node in row:
                     #             node.update_neighbors(grid)
-                        
+
                     #     reset_map_state(grid)
                     #     for treasure in treasures:
                     #         treasure.set_state(st.treasure)
@@ -561,15 +568,14 @@ def main(window, width, height):
                     # end = dfs(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start)
 
                     # for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # for row in grid:
-                    #     for node in row:
-                    #         node.update_neighbors(grid)
+                    map.reset()
+                    alg = Algorythms(map)
 
-                    # reset_map_state(grid)
-                    # for treasure in treasures:
-                    #     treasure.set_state(st.treasure)
-
-                    # end = bfs(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start)
+                    s = State(Agent(map.get_start()), map)
+                    for _ in alg.bfs(s):
+                        main_window.draw()
+                        #time.sleep(2)
+                    #end = bfs(lambda: main_window.draw(), map)
 
                     # for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # end = choose_end_node(treasures)
@@ -577,7 +583,7 @@ def main(window, width, height):
                     #     for row in grid:
                     #         for node in row:
                     #             node.update_neighbors(grid)
-                        
+
                     #     reset_map_state(grid)
                     #     for treasure in treasures:
                     #         treasure.set_state(st.treasure)
@@ -589,15 +595,15 @@ def main(window, width, height):
                     #     for row in grid:
                     #         for node in row:
                     #             node.update_neighbors(grid)
-                        
+
                     #     reset_map_state(grid)
                     #     for treasure in treasures:
                     #         treasure.set_state(st.treasure)
                     #     greedy(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
-            
+
                 if event.key == pygame.K_c:
                     map.clear()
-                
+
                 if event.key == pygame.K_r:
                     map.reset()
 

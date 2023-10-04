@@ -1,6 +1,7 @@
+from __future__ import annotations
 from agent import Agent
 from map import Map
-from position import CardinalDirections
+from position import Direction
 
 class State:
     def __init__(self, agent : Agent, map : Map) -> None:
@@ -13,9 +14,9 @@ class State:
     def is_final(self):
         return self.map.is_treasure_position(self.agent.map_position)
 
-    def move(self, action : CardinalDirections):
+    def move(self, action : Direction) -> State:
         new_agent_position = self.agent.map_position + action
-        new_agent = Agent(new_agent_position, self.agent.position_visited.copy())
+        new_agent = Agent(new_agent_position, self.agent.position_history.copy())
         return State(new_agent, self.map)
     
     def copy(self):

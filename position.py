@@ -6,6 +6,8 @@ class Position:
         self.y = y
 
     def __eq__(self, __value: object) -> bool:
+        if __value == None:
+            return False
         return self.x == __value.x and self.y == __value.y
     
     def __add__(self, other):

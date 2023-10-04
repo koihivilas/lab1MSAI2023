@@ -32,13 +32,13 @@ class Table(Element):
             return
         
         if(event_type == Event_type.BUTTON_LEFT_PRESSED):
-            node_row, node_col = self.get_node_position_by_coordinates(kwargs['x'], kwargs['y'])
+            node_row, node_col = self.get_node_position_by_coordinates(x = kwargs['x'], y = kwargs['y'])
             #Closly tie coursor with thumbnail realization
             self.__data_source.set_node_state(node_row, 
                                                   node_col, 
                                                   new_state = self.get_cursor().get_state())
         if(event_type == Event_type.BUTTON_RIGHT_PRESSED):
-            node_row, node_col = self.get_node_position_by_coordinates(kwargs['x'], kwargs['y'])
+            node_row, node_col = self.get_node_position_by_coordinates(x = kwargs['x'], y = kwargs['y'])
             #Closly tie coursor with thumbnail realization
             self.__data_source.reset_node_state(node_row, 
                                                   node_col) 
