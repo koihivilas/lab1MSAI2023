@@ -11,7 +11,7 @@ from window import Window
 from map_field_states import Map_field_state
 from map import Map
 from event_types import Event_type
-from algorithms import Algorythms
+from state_mashine import StateMashine
 from state import State
 from agent import Agent
 
@@ -569,9 +569,9 @@ def main(window, width, height):
 
                     # for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     map.reset()
-                    alg = Algorythms(map)
+                    alg = StateMashine(map)
 
-                    s = State(Agent(map.get_start()), map)
+                    s = State(Agent(map.get_start()))
                     for _ in alg.bfs(s):
                         main_window.draw()
                         #time.sleep(2)
