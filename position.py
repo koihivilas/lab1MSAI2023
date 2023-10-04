@@ -22,8 +22,8 @@ class Position:
 
 class Direction:
     def __init__(self, x, y) -> None:
-        self.x = 0
-        self.y = 0
+        self.x = x
+        self.y = y
 
 class CardinalDirections(Enum):
     RIGHT = Direction(1,0)
