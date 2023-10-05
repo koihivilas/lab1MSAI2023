@@ -535,13 +535,15 @@ def main(window, width, height):
                 if event.key == pygame.K_SPACE and True:
                     map.reset()
                     alg = StateMashine(map)
-
+                    main_window.draw()
                     s = State(Agent(map.get_start()))
 
                     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     #algoritm = alg.bfs
                     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    algoritm = alg.astar
+                    #algoritm = alg.astar
+                    #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    algoritm = alg.greedy
 
                     for _ in algoritm(s):
                         main_window.draw()

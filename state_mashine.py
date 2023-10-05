@@ -116,3 +116,46 @@ class StateMashine:
                 self.__reconstruct_node(current.agent.get_position(), Map_field_state.CLOSED)
             yield
         return False
+
+    def greedy(self, s : State):
+            count = 0 # to break ties if we have the same f-score
+            open_set = PriorityQueue()
+            open_set.put((0, count, s)) # f-score, count, node
+
+            g_score = dict()
+            g_score[s] = self.heuristics(s)
+
+            open_set_hash = {s} # to check if node is in open set (priority queue)
+
+            while not open_set.empty():
+                if st.has_step_delay:
+                    time.sleep(st.step_delay)
+
+                current = open_set.get()[2]
+
+                if self.__is_final(current):
+                    self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                    return current
+
+                for action in self.__posible_actions(current):
+                    neighbor = current.move(action)
+                    position = neighbor.agent.get_position()
+                    neighbor_state = self.map.get_table()[position.y][position.x].get_state()
+                    
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.PATH)
+                        yield
+
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.CLOSED)
+                    g_score[neighbor] = self.heuristics(neighbor)
+                    if neighbor not in open_set_hash:
+                        count += 1
+                        open_set.put((g_score[neighbor], count, neighbor))
+                        open_set_hash.add(neighbor)
+                        if not self.__is_final(neighbor):
+                            self.__reconstruct_node(position, Map_field_state.OPEN)
+                if current.agent.get_position() != self.map.get_start():
+                    self.__reconstruct_node(current.agent.get_position(), Map_field_state.CLOSED)
+                yield
+            return False
