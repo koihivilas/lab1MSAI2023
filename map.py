@@ -3,16 +3,20 @@ from map_field_states import Map_field_state
 from position import Position, Direction, CardinalDirections
 from typing import List
 class Map:
-    def __init__(self, rows_amount, colums_amount) -> None:
+    def __init__(self, rows_amount, colums_amount, start_position = None, trasures_positions = None, exits_positions = None) -> None:
         self.__width = colums_amount
         self.__height = rows_amount
         self.__table = [[
                         Node(i, j, default_state = Map_field_state.EMPTY) 
                          for j in range(self.__width)] 
                          for i in range(self.__height)]
-        self.__trasures_positions = []
-        self.__start_position = None
-        self.__exits_positions = []
+        self.__trasures_positions = trasures_positions
+        if trasures_positions == None:
+            self.__trasures_positions = []
+        self.__start_position = start_position
+        self.__exits_positions = exits_positions
+        if exits_positions == None:
+            self.__exits_positions = []
     #TODO: Remove
     def update_nodes_neighbors(self):
         table = self.__table
@@ -56,6 +60,15 @@ class Map:
     
     def get_treasure_positions(self):
         return self.__trasures_positions
+    
+    def get_exit_positions(self):
+        return self.__exits_positions
+    
+    def get_width(self):
+        return self.__width
+    
+    def get_heigth(self):
+        return self.__height
 
     def set_node_state(self, node_row, node_column, new_state):
         node = self.__table[node_row][node_column]

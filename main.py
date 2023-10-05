@@ -14,6 +14,7 @@ from event_types import Event_type
 from state_mashine import StateMashine
 from state import State
 from agent import Agent
+from file_map_operator import File_map_operator
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
 def heuristics(point1, point2):
@@ -616,6 +617,18 @@ def main(window, width, height):
 
                 if event.key == pygame.K_r:
                     map.reset()
+
+                if event.key == pygame.K_s:
+                    operator = File_map_operator()
+                    operator.write_map(map = map, file_path = "map.txt")
+
+                if event.key == pygame.K_l:
+                    operator = File_map_operator()
+                    map = operator.read_map("map.txt")
+                    table.link_table(map)
+                    map.reset()
+                    main_window.draw()
+
 
     pygame.quit()
 
