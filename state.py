@@ -15,5 +15,14 @@ class State:
     def __str__(self) -> str:
         return str(self.agent.map_position)
     
+    def __repr__(self):
+        return str(self.agent.map_position) + " " + str(len(self.agent.position_history))
+    
+    def __eq__(self, other):
+        return self.agent.map_position == other.agent.map_position
+    
+    def __hash__(self) -> int:
+        return self.agent.map_position.__hash__()
+
     def get_position(self):
         return self.agent.get_position()
