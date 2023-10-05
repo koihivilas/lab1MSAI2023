@@ -540,10 +540,12 @@ def main(window, width, height):
 
                     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     #algoritm = alg.bfs
+                    #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    algoritm = alg.bi_directional_bfs
                     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     #algoritm = alg.astar
                     #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    algoritm = alg.greedy
+                    #algoritm = alg.greedy
 
                     for _ in algoritm(s):
                         main_window.draw()
