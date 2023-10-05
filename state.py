@@ -12,9 +12,6 @@ class State:
         new_agent = Agent(new_agent_position, self.agent.position_history.copy())
         return State(new_agent)
     
-    def copy(self):
-        return State(self.agent)
-    
     def __str__(self) -> str:
         return str(self.agent.map_position)
     
