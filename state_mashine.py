@@ -200,3 +200,84 @@ class StateMashine:
             if current.agent.get_position() != self.map.get_start() and not self.__is_final(current):
                 self.__reconstruct_node(current.agent.get_position(), Map_field_state.CLOSED)
             yield
+
+    def iterative_astar(self, s : State):
+        def bound_a_star(self, s : State, boundary):
+            next_boundary = int(100000)
+            count = 0 # to break ties if we have the same f-score
+            open_set = PriorityQueue()
+            open_set.put((0, count, s)) # f-score, count, node
+
+            g_score = dict()
+            g_score[s] = 0 # distance from start to start is 0
+
+            f_score = dict()
+            f_score[s] = self.heuristics(s) # distance from start to end is heuristic
+
+            open_set_hash = {s} # to check if node is in open set (priority queue)
+
+            while not open_set.empty():
+                if st.has_step_delay:
+                    time.sleep(st.step_delay)
+
+                current = open_set.get()[2]
+                open_set_hash.remove(current)
+
+                if self.__is_final(current):
+                    self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                    return current
+
+                for action in self.__posible_actions(current):
+                    neighbor = current.move(action)
+                    position = neighbor.agent.get_position()
+                    neighbor_state = self.map.get_table()[position.y][position.x].get_state()
+                    
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.PATH)
+                        yield
+
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.CLOSED)
+                    
+                    temp_g_score = g_score[current] + 1 # assume distance between two nodes is 1 (cause it's grid)
+
+                    if (temp_g_score + self.heuristics(neighbor) > boundary):
+                        if(temp_g_score + self.heuristics(neighbor) <= next_boundary):
+                            next_boundary = temp_g_score + self.heuristics(neighbor)
+                        continue
+                    
+                    if temp_g_score < g_score.get(neighbor, float("inf")): # if we found better path
+                        g_score[neighbor] = temp_g_score
+                        f_score[neighbor] = temp_g_score + self.heuristics(neighbor)
+                        if neighbor not in open_set_hash:
+                            count += 1
+                            open_set.put((f_score[neighbor], count, neighbor))
+                            open_set_hash.add(neighbor)
+                            if not self.__is_final(neighbor):
+                                self.__reconstruct_node(position, Map_field_state.OPEN)
+                if current.agent.get_position() != self.map.get_start():
+                    self.__reconstruct_node(current.agent.get_position(), Map_field_state.CLOSED)
+                yield
+            return next_boundary
+        boundary = self.heuristics(s)
+        while True:
+            generator = iter(bound_a_star(self, s, boundary))
+            stop = False
+            while not stop:
+                try:
+                    result = next(generator)
+                    yield result
+                except StopIteration as ex:
+                    result = ex.value
+                    stop = True
+
+            
+            if (type(result) != type(s)):
+                if(result == int(100000)):
+                    return False
+                else:
+                    boundary = result
+                    #time.sleep(1)
+            else:
+                return result
+        

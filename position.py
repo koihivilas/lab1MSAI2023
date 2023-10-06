@@ -1,5 +1,5 @@
 from enum import Enum
-
+import math
 class Position:
     def __init__(self, x, y) -> None:
         self.x = x
@@ -21,7 +21,9 @@ class Position:
     
     def manhattan(self, other) -> int:
         return abs(self.x - other.x) + abs(self.y - other.y)
-
+    
+    def euclid(self, other) -> float:
+        return math.sqrt(((self.x - other.x) ** 2 + (self.y - other.y) ** 2))
 class Direction:
     def __init__(self, x, y) -> None:
         self.x = x

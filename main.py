@@ -547,6 +547,8 @@ def main(window, width, height):
                     #algoritm = alg.astar
                     #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     #algoritm = alg.greedy
+                    #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    #algoritm = alg.iterative_astar
 
                     for _ in algoritm(s):
                         main_window.draw()
