@@ -510,7 +510,16 @@ def main(window, width, height):
 
     run = True
 
+    generator_algorithm = None
+    is_working = False
+
     while run:
+        if(is_working):
+            try:
+                result = next(generator_algorithm)
+            except StopIteration as ex:
+                result = ex.value
+                is_working = False
         main_window.draw()
         #TODO: Make EventHandler class
         for event in pygame.event.get():
@@ -537,7 +546,6 @@ def main(window, width, height):
                     map.reset()
                     alg = StateMachine(map)
                     main_window.draw()
-                    s = State(Agent(map.get_start()))
 
                     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     #algorithm = alg.bfs
@@ -550,8 +558,10 @@ def main(window, width, height):
                     #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     algorithm = alg.iterative_astar
 
-                    for _ in algorithm(s):
-                        main_window.draw()
+                    if(not is_working):
+                        s = State(Agent(map.get_start()))
+                        generator_algorithm = iter(algorithm(s))
+                        is_working = True
                         #time.sleep(2)
                     # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # end = choose_end_node(treasures)
