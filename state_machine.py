@@ -8,7 +8,7 @@ import time
 import pygame
 from typing import List
 from agent import Agent
-class StateMashine:
+class StateMachine:
     def __init__(self, map : Map):
         self.map = map
     

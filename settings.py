@@ -34,8 +34,8 @@ HAS_PATH_DELAY = False
 PATH_DELAY = 0.005 # seconds (default)
 
 # amount of rows and cols in the grid (default) proportion is 3 : 5
-ROWS = 15
-COLS = 25
+ROWS = 30
+COLS = 50
 
 THUMBNAIL_SIZE = 10 # size of the thumbnail following mouse cursor (default)
 THUMBNAIL_MARGIN_X = 14 # margin of the thumbnail from mouse cursor (default)
@@ -55,18 +55,20 @@ A_STAR = "A*"
 A_STAR_ITERATIVE = "A* Iterative"
 JPS = "JPS"
 
-GUI_PADDING = 100 # padding of the GUI (default) (bottom of the screen?)
+GUI_PADDING_X = 200 # padding of the GUI (default) (right of the screen?)
+GUI_PADDING_Y = 100 # padding of the GUI (default) (bottom of the screen?)
 
 class Settings:
     # Grid and GUI
     rows = ROWS
     cols = COLS
-    gui_padding = GUI_PADDING
+    gui_padding_x = GUI_PADDING_X
+    gui_padding_y = GUI_PADDING_Y
 
     # Pygame
     width = WIDTH
     height = HEIGHT
-    window = pygame.display.set_mode((width, height + gui_padding))
+    window = pygame.display.set_mode((width + gui_padding_x, height + gui_padding_y))
     caption = pygame.display.set_caption("Path Finding Visualization")
 
     # States (colors)

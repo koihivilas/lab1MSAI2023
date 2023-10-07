@@ -11,7 +11,7 @@ from window import Window
 from map_field_states import Map_field_state
 from map import Map
 from event_types import Event_type
-from state_mashine import StateMashine
+from state_machine import StateMachine
 from state import State
 from agent import Agent
 from file_map_operator import File_map_operator
@@ -535,22 +535,22 @@ def main(window, width, height):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and True:
                     map.reset()
-                    alg = StateMashine(map)
+                    alg = StateMachine(map)
                     main_window.draw()
                     s = State(Agent(map.get_start()))
 
                     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algoritm = alg.bfs
+                    #algorithm = alg.bfs
                     #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    algoritm = alg.bi_directional_bfs
+                    # algorithm = alg.bi_directional_bfs
                     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algoritm = alg.astar
+                    #algorithm = alg.astar
                     #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algoritm = alg.greedy
+                    #algorithm = alg.greedy
                     #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algoritm = alg.iterative_astar
+                    algorithm = alg.iterative_astar
 
-                    for _ in algoritm(s):
+                    for _ in algorithm(s):
                         main_window.draw()
                         #time.sleep(2)
                     # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -63,7 +63,7 @@ class Table(Element):
             line_end_vector = (self.get_x() + self.get_width(), self.get_y()+ i * self.__node_size)
             pygame.draw.line(window, st.light_grey, line_start_vector, line_end_vector)
         
-        for i in range(self.get_width() // self.__node_size):
+        for i in range(self.get_width() // self.__node_size + 1):
             line_start_vector = (self.get_x() + i * self.__node_size, self.get_y())
             line_end_vector = (self.get_x() + i * self.__node_size, self.get_y() + self.get_height())
             pygame.draw.line(window, st.light_grey, line_start_vector, line_end_vector)
