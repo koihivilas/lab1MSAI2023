@@ -37,23 +37,23 @@ class Map:
                 if j > 0 and not table[i][j - 1].has_state(Map_field_state.EXIT): # LEFT
                     node.neighbors.append(table[i][j - 1])
     
-    def get_posible_actions(self, position : Position) -> List[Direction]:
+    def get_possible_actions(self, position : Position) -> List[Direction]:
         table = self.__table
         x, y = position.x, position.y
-        posible_moves = []
+        possible_moves = []
         if y > 0 and not table[y - 1][x].has_state(Map_field_state.EXIT):
-            posible_moves.append(CardinalDirections.UP.value)
+            possible_moves.append(CardinalDirections.UP.value)
 
         if x < self.__width - 1 and not table[y][x + 1].has_state(Map_field_state.EXIT):
-            posible_moves.append(CardinalDirections.RIGHT.value)
+            possible_moves.append(CardinalDirections.RIGHT.value)
 
         if y < self.__height - 1 and not table[y + 1][x].has_state(Map_field_state.EXIT):
-            posible_moves.append(CardinalDirections.DOWN.value)
+            possible_moves.append(CardinalDirections.DOWN.value)
 
         if x > 0 and not table[y][x - 1].has_state(Map_field_state.EXIT):
-            posible_moves.append(CardinalDirections.LEFT.value)
+            possible_moves.append(CardinalDirections.LEFT.value)
         
-        return posible_moves
+        return possible_moves
 
     def is_treasure_position(self, position : Position):
         return self.__table[position.y][position.x].get_state() == Map_field_state.TREASURE

@@ -503,13 +503,13 @@ def main(window, width, height):
     node_size = st.get_node_size()
     table = Table(0, 0, st.cols * node_size, st.rows * node_size, node_size, data_source = map, mouse_thumbnail = thumbnail)
 
-    test_text = Text(table.get_width() // 2 + 10, table.get_height() // 2 + 10, 100, 100, "test")
+    # test_text = Text(table.get_width() // 2 + 10, table.get_height() // 2 + 10, 100, 100, "test")
 
     # btn = Button()
 
     main_window = Window(window, width, height)
     main_window.add_element(table, 1)
-    main_window.add_element(test_text, 2)
+    # main_window.add_element(test_text, 2)
 
     start = None
     end = None # for bfs not necessary
@@ -556,7 +556,11 @@ def main(window, width, height):
                     main_window.draw()
 
                     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    algorithm = alg.bfs
+                    # algorithm = alg.bfs
+                    # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    # algorithm = alg.dfs
+                    #for dfs_depth_limited !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    algorithm = alg.dfs_limited
                     #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.bi_directional_bfs
                     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

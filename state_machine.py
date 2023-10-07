@@ -12,8 +12,8 @@ class StateMachine:
     def __init__(self, map : Map):
         self.map = map
     
-    def __posible_actions(self, state : State):
-        return self.map.get_posible_actions(state.agent.map_position)
+    def __possible_actions(self, state : State):
+        return self.map.get_possible_actions(state.agent.map_position)
     
     def __is_final(self, state : State):
         return self.map.is_treasure_position(state.agent.map_position)
@@ -46,7 +46,7 @@ class StateMachine:
                 self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
                 return current
             
-            for action in self.__posible_actions(current):
+            for action in self.__possible_actions(current):
                 neighbor = current.move(action)
                 position = neighbor.agent.get_position()
                 neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -89,7 +89,7 @@ class StateMachine:
                 self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
                 return current
 
-            for action in self.__posible_actions(current):
+            for action in self.__possible_actions(current):
                 neighbor = current.move(action)
                 position = neighbor.agent.get_position()
                 neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -137,7 +137,7 @@ class StateMachine:
                     self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
                     return current
 
-                for action in self.__posible_actions(current):
+                for action in self.__possible_actions(current):
                     neighbor = current.move(action)
                     position = neighbor.agent.get_position()
                     neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -183,7 +183,7 @@ class StateMachine:
             
             current = current_set.pop(0)
 
-            for action in self.__posible_actions(current):
+            for action in self.__possible_actions(current):
                 neighbor = current.move(action)
                 position = neighbor.agent.get_position()
                 neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -227,7 +227,7 @@ class StateMachine:
                     self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
                     return current
 
-                for action in self.__posible_actions(current):
+                for action in self.__possible_actions(current):
                     neighbor = current.move(action)
                     position = neighbor.agent.get_position()
                     neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -281,3 +281,67 @@ class StateMachine:
             else:
                 return result
         
+    def dfs(self, s : State):
+        open_set = list()
+        open_set.append(s)
+
+        while len(open_set) != 0:
+            if st.has_step_delay:
+                time.sleep(st.step_delay)
+            
+            current = open_set.pop()
+            if self.__is_final(current):
+                self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                return current
+
+            for action in self.__possible_actions(current):
+                neighbor = current.move(action)
+                position = neighbor.agent.get_position()
+                neighbor_state = self.map.get_table()[position.y][position.x].get_state()
+                if(neighbor_state not in [Map_field_state.START, Map_field_state.CLOSED]):
+                    open_set.append(neighbor)
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.PATH)
+                        yield
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.CLOSED)
+                    if not self.__is_final(neighbor):
+                        self.__reconstruct_node(position, Map_field_state.OPEN)
+            if current.agent.get_position() != self.map.get_start():
+                self.__reconstruct_node(current.agent.get_position(), Map_field_state.CLOSED)
+            yield
+
+    def dfs_limited(self, s : State):
+        open_set = list()
+        open_set.append(s)
+
+        while len(open_set) != 0:
+            if st.has_step_delay:
+                time.sleep(st.step_delay)
+            
+            current = open_set.pop()
+            curr_depth = len(current.agent.position_history)
+
+            if curr_depth > st.depth_limit:
+                continue
+
+            if self.__is_final(current):
+                self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                return current
+
+            for action in self.__possible_actions(current):
+                neighbor = current.move(action)
+                position = neighbor.agent.get_position()
+                neighbor_state = self.map.get_table()[position.y][position.x].get_state()
+                if(neighbor_state not in [Map_field_state.START, Map_field_state.CLOSED]):
+                    open_set.append(neighbor)
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.PATH)
+                        yield
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.CLOSED)
+                    if not self.__is_final(neighbor):
+                        self.__reconstruct_node(position, Map_field_state.OPEN)
+            if current.agent.get_position() != self.map.get_start():
+                self.__reconstruct_node(current.agent.get_position(), Map_field_state.CLOSED)
+            yield
