@@ -15,6 +15,7 @@ from state_machine import StateMachine
 from state import State
 from agent import Agent
 from file_map_operator import File_map_operator
+from enum import Enum, auto
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
 def heuristics(point1, point2):
@@ -489,6 +490,11 @@ def choose_end_node(treasures):
     else:
         return None
 
+class AppState(Enum):
+    drawing = auto()
+    working = auto()
+    paused = auto()
+
 def main(window, width, height):
     map = Map(st.rows, st.cols)
 
@@ -511,15 +517,18 @@ def main(window, width, height):
     run = True
 
     generator_algorithm = None
-    is_working = False
+    app_state = AppState.drawing
 
     while run:
-        if(is_working):
+        if(app_state == AppState.working):
             try:
                 result = next(generator_algorithm)
             except StopIteration as ex:
                 result = ex.value
-                is_working = False
+                if result == None:
+                    #TODO: Say something like world will suffer, path not found
+                    pass
+                app_state = AppState.drawing
         main_window.draw()
         #TODO: Make EventHandler class
         for event in pygame.event.get():
@@ -542,27 +551,33 @@ def main(window, width, height):
                     main_window.event(Event_type.BUTTON_RIGHT_PRESSED, x = pos_x, y = pos_y)
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and True:
-                    map.reset()
-                    alg = StateMachine(map)
-                    main_window.draw()
+                if event.key == pygame.K_SPACE:
+                    if (app_state == AppState.drawing):
+                        alg = StateMachine(map)
 
-                    #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algorithm = alg.bfs
-                    #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # algorithm = alg.bi_directional_bfs
-                    #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algorithm = alg.astar
-                    #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algorithm = alg.greedy
-                    #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    algorithm = alg.iterative_astar
-
-                    if(not is_working):
-                        s = State(Agent(map.get_start()))
-                        generator_algorithm = iter(algorithm(s))
-                        is_working = True
-                        #time.sleep(2)
+                        #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        #algorithm = alg.bfs
+                        #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        # algorithm = alg.bi_directional_bfs
+                        #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        #algorithm = alg.astar
+                        #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        #algorithm = alg.greedy
+                        #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        algorithm = alg.iterative_astar
+                        start = map.get_start()
+                        if(start == None):
+                            #TODO: Show that start is needed
+                            pass
+                        else:
+                            s = State(Agent(start))
+                            generator_algorithm = iter(algorithm(s))
+                            app_state = AppState.working
+                    elif (app_state == AppState.working):
+                        app_state = AppState.paused
+                    elif (app_state == AppState.paused):
+                        app_state = AppState.working
+                        
                     # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # end = choose_end_node(treasures)
                     # if end:
@@ -626,20 +641,24 @@ def main(window, width, height):
 
                 if event.key == pygame.K_c:
                     map.clear()
+                    app_state = AppState.drawing
 
                 if event.key == pygame.K_r:
                     map.reset()
+                    app_state = AppState.drawing
 
                 if event.key == pygame.K_s:
-                    operator = File_map_operator()
-                    operator.write_map(map = map, file_path = "map.txt")
+                    if(app_state == AppState.drawing):
+                        operator = File_map_operator()
+                        operator.write_map(map = map, file_path = "map.txt")
 
                 if event.key == pygame.K_l:
-                    operator = File_map_operator()
-                    map = operator.read_map("map.txt")
-                    table.link_table(map)
-                    map.reset()
-                    main_window.draw()
+                    if(app_state == AppState.drawing):
+                        operator = File_map_operator()
+                        map = operator.read_map("map.txt")
+                        table.link_table(map)
+                        map.reset()
+                        main_window.draw()
 
 
     pygame.quit()
