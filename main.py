@@ -1,5 +1,3 @@
-import tkinter
-import tkinter.filedialog
 import pygame
 import math
 import time
@@ -18,17 +16,7 @@ from state import State
 from agent import Agent
 from file_map_operator import File_map_operator
 from text import Text
-
-def prompt_file():
-    top = tkinter.Tk()
-    top.withdraw()  # hide window
-    filetypes = (
-                        ('maps', '*.txt'),
-                        ('All files', '*.*')
-                    )
-    file_name = tkinter.filedialog.askopenfilename(parent=top, filetypes=filetypes)
-    top.destroy()
-    return file_name
+from file_browser import FileBrowser
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
 def heuristics(point1, point2):
@@ -652,11 +640,15 @@ def main(window, width, height):
 
                 if event.key == pygame.K_s:
                     operator = File_map_operator()
-                    operator.write_map(map = map, file_path = "map.txt")
+                    path_to_save = FileBrowser.prompt_savepath()
+                    if path_to_save:
+                        operator.write_map(map = map, file_path = path_to_save)
+                    else:
+                        operator.write_map(map = map, file_path = "map.txt")
 
                 if event.key == pygame.K_l:
                     operator = File_map_operator()
-                    filename = prompt_file()
+                    filename = FileBrowser.prompt_file()
                     if filename:
                         map = operator.read_map(filename)
                     else:
