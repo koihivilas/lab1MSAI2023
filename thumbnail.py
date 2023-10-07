@@ -15,7 +15,8 @@ class Thumbnail(Element):
     def get_y(self):
         _, pos_y = pygame.mouse.get_pos()
         return pos_y + super().get_y()
-
+    
+    @Element.element_draw_wraper
     def draw(self, window):
         color = self.state.value
         pygame.draw.rect(window, color, (self.get_x(), self.get_y(), self.get_width(), self.get_height()))

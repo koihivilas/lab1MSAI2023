@@ -17,6 +17,7 @@ class Cell(Element):
     def get_pos(self):
         return self.__parent.get_node_position_by_coordinates(self.get_x() + self.get_width() / 2, self.get_y() + self.get_height() / 2)
     
+    @Element.element_draw_wraper
     def draw(self, window):
         color = self.get_color().value
         pygame.draw.rect(window, color, (self.get_x(), self.get_y(), self.get_width(), self.get_height()))

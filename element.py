@@ -5,14 +5,41 @@ class Element:
         self.set_height(height)
         self.set_width(width)
         self.enabled = True
+        self.visible = True
+        self.active = True
         self.__cursor = cursor
     
-    def draw(self):
+    def draw(self, window):
         pass
 
     def event(self, event_type, **kwargs):
         pass
+    
+    def __draw_coursor(self, window):
+        if(self.is_cursor_visible() and 
+            self.is_coordinates_in_boundaries(self.get_cursor().get_x(), self.get_cursor().get_y())):
+            self.get_cursor().draw(window)
+    
+    def __event_coursor(self, event_type, **kwargs):
+        if(self.is_cursor_active() and 
+            self.is_coordinates_in_boundaries(self.get_cursor().get_x(), self.get_cursor().get_y())):
+            self.get_cursor().event(event_type, **kwargs)
+    
+    def element_draw_wraper(draw):
+        def inner_function(self, window = None):
+            if(not self.enabled or not self.visible):
+                return
+            draw(self, window)
+            self.__draw_coursor(window)
+        return inner_function
 
+    def element_event_wraper(event):
+        def inner_function(self, event_type, **kwargs):
+            if(not self.enabled or not self.active):
+                return
+            event(self, event_type, **kwargs)
+            self.__event_coursor(event_type, **kwargs)
+        return inner_function
     
     #Getters and setters
     def get_x(self):
@@ -38,12 +65,28 @@ class Element:
 
     def set_width(self, width):
         self.__width = width
-    
+
     def enable(self):
-        self.__enabled = True
+        self.visible = True
+        self.active = True
+        self.enabled = True
 
     def disable(self):
-        self.__enabled = False
+        self.visible = False
+        self.active = False
+        self.enabled = False
+
+    def enable_events(self):
+        self.active = True
+
+    def disable_events(self):
+        self.active = False
+
+    def hide(self):
+        self.visible = False
+
+    def show(self):
+        self.visible = True
 
     def get_cursor(self):
         return self.__cursor
@@ -52,7 +95,10 @@ class Element:
         self.__cursor = cursor
     
     def is_cursor_active(self):
-        return self.get_cursor() and self.get_cursor().enabled
-    
+        return self.get_cursor() and self.get_cursor().enabled and self.get_cursor().active
+        
+    def is_cursor_visible(self):
+        return self.get_cursor() and self.get_cursor().enabled and self.get_cursor().visible
+
     def is_coordinates_in_boundaries(self, x, y):
         return x < self.get_x() + self.get_width() and x > self.get_x() and y < self.get_y() + self.get_height() and y > self.get_y()

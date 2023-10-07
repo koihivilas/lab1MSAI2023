@@ -18,19 +18,18 @@ class Table(Element):
         if data_source is not None:
             self.link_table(self.__data_source)
 
+    @Element.element_draw_wraper
     def draw(self, window):
         for i in range(self.get_height() // self.__node_size):
             for j in range(self.get_width() // self.__node_size):
                 self.__table[i][j].draw(window)
         self.__draw_grid(window)
-        if(self.is_cursor_active() and 
+        if(self.is_cursor_visible() and 
             self.is_coordinates_in_boundaries(self.get_cursor().get_x(), self.get_cursor().get_y())):
             self.get_cursor().draw(window)
     
-    def event(self, event_type : Event_type, **kwargs):
-        if(not self.enabled):
-            return
-        
+    @Element.element_event_wraper
+    def event(self, event_type : Event_type, **kwargs):        
         if(event_type == Event_type.BUTTON_LEFT_PRESSED):
             node_row, node_col = self.get_node_position_by_coordinates(x = kwargs['x'], y = kwargs['y'])
             #Closly tie coursor with thumbnail realization
@@ -41,10 +40,7 @@ class Table(Element):
             node_row, node_col = self.get_node_position_by_coordinates(x = kwargs['x'], y = kwargs['y'])
             #Closly tie coursor with thumbnail realization
             self.__data_source.reset_node_state(node_row, 
-                                                  node_col) 
-            
-        if(self.is_cursor_active()):
-            self.get_cursor().event(event_type, **kwargs)
+                                                  node_col)
 
     def link_table(self, data_source : Map):
         self.__data_source = data_source
