@@ -53,8 +53,8 @@ class Table(Element):
                 self.__table[i][j].link(self.__data_source.get_table()[i][j])
 
     def get_node_position_by_coordinates(self, x, y):
-        row = y // self.__node_size
-        col = x // self.__node_size
+        row = (y - self.get_y()) // self.__node_size
+        col = (x - self.get_x()) // self.__node_size
         return row, col
     
     def __draw_grid(self, window):
