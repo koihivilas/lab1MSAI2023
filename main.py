@@ -15,6 +15,7 @@ from state_machine import StateMachine
 from state import State
 from agent import Agent
 from file_map_operator import File_map_operator
+from text import Text
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
 def heuristics(point1, point2):
@@ -490,6 +491,7 @@ def choose_end_node(treasures):
         return None
 
 def main(window, width, height):
+    pygame.init()
     map = Map(st.rows, st.cols)
 
     #UI
@@ -500,8 +502,11 @@ def main(window, width, height):
     node_size = st.get_node_size()
     table = Table(0, 0, st.cols * node_size, st.rows * node_size, node_size, data_source = map, mouse_thumbnail = thumbnail)
 
+    test_text = Text(table.get_width() // 2 + 10, table.get_height() // 2 + 10, 100, 100, "test")
+
     main_window = Window(window, width, height)
     main_window.add_element(table, 1)
+    main_window.add_element(test_text, 2)
 
     start = None
     end = None # for bfs not necessary
@@ -548,7 +553,7 @@ def main(window, width, height):
                     main_window.draw()
 
                     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algorithm = alg.bfs
+                    algorithm = alg.bfs
                     #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.bi_directional_bfs
                     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -556,7 +561,7 @@ def main(window, width, height):
                     #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     #algorithm = alg.greedy
                     #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    algorithm = alg.iterative_astar
+                    # algorithm = alg.iterative_astar
 
                     if(not is_working):
                         s = State(Agent(map.get_start()))
