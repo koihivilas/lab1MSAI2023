@@ -16,6 +16,7 @@ from state import State
 from agent import Agent
 from file_map_operator import File_map_operator
 from enum import Enum, auto
+from event_handler import Event_handler, Event
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
 def heuristics(point1, point2):
@@ -490,10 +491,107 @@ def choose_end_node(treasures):
     else:
         return None
 
+def clear(map : Map):
+    map.clear()
+    #TODO: make it app_state_change(AppState.drawing) 
+    Event_handler().events[Event_type.ON_APP_STATE_CHANGE].invoke(AppState.drawing)
+
+def reset(map : Map):
+    map.reset()
+    #TODO: make it app_state_change(AppState.drawing) 
+    Event_handler().events[Event_type.ON_APP_STATE_CHANGE].invoke(AppState.drawing)
+
+def save_map(map : Map):
+    operator = File_map_operator()
+    operator.write_map(map = map, file_path = "map.txt")
+
+def load_map(map : Map, table : Table):
+    operator = File_map_operator()
+    map = operator.read_map("map.txt")
+    table.link_table(map)
+    map.reset()
+
 class AppState(Enum):
+    starting = auto()
     drawing = auto()
     working = auto()
     paused = auto()
+
+def app_state_change(current_state : AppState, new_state : AppState, table):
+    event_handler = Event_handler()
+    if(new_state == AppState.drawing):
+        if(current_state == AppState.starting):
+            event_handler.add_handler(Event_type.ON_KEY_S,
+                                    lambda: save_map(map))
+            event_handler.add_handler(Event_type.ON_KEY_L,
+                                    lambda: load_map(map, table))   
+            event_handler.add_handler(Event_type.ON_K_SPACE,
+                                    lambda: start_algorithm())
+            table.enable_events()
+        elif(current_state == AppState.working):
+            event_handler.remove_handler(Event_type.ON_K_SPACE,
+                                    lambda: pause_algorithm())
+            table.enable_events()
+            event_handler.add_handler(Event_type.ON_KEY_S,
+                                    lambda: save_map(map))
+            event_handler.add_handler(Event_type.ON_KEY_L,
+                                    lambda: load_map(map, table))   
+            event_handler.add_handler(Event_type.ON_K_SPACE,
+                                    lambda: start_algorithm())
+            
+    if(new_state == AppState.working):
+        if(current_state == AppState.drawing):
+            event_handler.remove_handler(Event_type.ON_KEY_S,
+                                    lambda: save_map(map))
+            event_handler.remove_handler(Event_type.ON_KEY_L,
+                                    lambda: load_map(map, table))  
+            event_handler.remove_handler(Event_type.ON_K_SPACE,
+                                    lambda: start_algorithm())
+            table.disable_events()
+            event_handler.add_handler(Event_type.ON_K_SPACE,
+                                    lambda: pause_algorithm())
+        if(current_state == AppState.paused):
+            event_handler.remove_handler(Event_type.ON_K_SPACE,
+                                    lambda: continue_algorithm())
+            event_handler.add_handler(Event_type.ON_K_SPACE,
+                                    lambda: pause_algorithm())          
+    if(new_state == AppState.paused):
+        if(current_state == AppState.working):
+            event_handler.remove_handler(Event_type.ON_K_SPACE,
+                                    lambda: pause_algorithm())  
+            event_handler.add_handler(Event_type.ON_K_SPACE,
+                                    lambda: continue_algorithm())
+
+
+
+def start_algorithm():
+    alg = StateMachine(map)
+
+    #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #algorithm = alg.bfs
+    #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # algorithm = alg.bi_directional_bfs
+    #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #algorithm = alg.astar
+    #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #algorithm = alg.greedy
+    #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    algorithm = alg.iterative_astar
+    start = map.get_start()
+    if(start == None):
+        #TODO: Show that start is needed
+        pass
+    else:
+        s = State(Agent(start))
+        generator_algorithm = iter(algorithm(s))
+        app_state_change(AppState.drawing, AppState.working)   
+
+def pause_algorithm():
+    app_state_change(AppState.working, AppState.paused)
+
+def continue_algorithm():
+    app_state_change(AppState.paused, AppState.working)
+
 
 def main(window, width, height):
     map = Map(st.rows, st.cols)
@@ -519,146 +617,115 @@ def main(window, width, height):
     generator_algorithm = None
     app_state = AppState.drawing
 
+    #regiser events
+    event_handler = Event_handler()
+    event_handler.add_handler(Event_type.BEFORE_DRAW,
+                              lambda: window.fill(st.white))
+    event_handler.add_handler(Event_type.AFTER_DRAW,
+                              pygame.display.update)
+    event_handler.add_handler(Event_type.ON_KEY_C,
+                              lambda: clear(map))
+    event_handler.add_handler(Event_type.ON_KEY_R,
+                              lambda: reset(map))
+    
     while run:
-        if(app_state == AppState.working):
-            try:
-                result = next(generator_algorithm)
-            except StopIteration as ex:
-                result = ex.value
-                if result is None:
-                    #TODO: Say something like world will suffer, path not found
-                    pass
-                app_state = AppState.drawing
+        Event_handler().events[Event_type.BEFORE_DRAW].invoke()
         main_window.draw()
+        Event_handler().events[Event_type.AFTER_DRAW].invoke()
         #TODO: Make EventHandler class
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            Event_handler().handle_pygame(event, main_window)
 
-            if event.type == pygame.MOUSEWHEEL:
-                pos_x, pos_y = pygame.mouse.get_pos()
-                if main_window.is_coordinates_in_boundaries(pos_x, pos_y):
-                    main_window.event(Event_type.MOUSE_WHEEL, y = event.y)
+            # if event.type == pygame.KEYDOWN:
+            #     if event.key == pygame.K_SPACE:
+            #         if (app_state == AppState.drawing):
+                        # alg = StateMachine(map)
 
-            if pygame.mouse.get_pressed()[0]: # left click
-                pos_x, pos_y = pygame.mouse.get_pos()
-                if main_window.is_coordinates_in_boundaries(pos_x, pos_y):
-                    main_window.event(Event_type.BUTTON_LEFT_PRESSED, x = pos_x, y = pos_y)
-
-            elif pygame.mouse.get_pressed()[2]: # right click
-                pos_x, pos_y = pygame.mouse.get_pos()
-                if main_window.is_coordinates_in_boundaries(pos_x, pos_y):
-                    main_window.event(Event_type.BUTTON_RIGHT_PRESSED, x = pos_x, y = pos_y)
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    if (app_state == AppState.drawing):
-                        alg = StateMachine(map)
-
-                        #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        #algorithm = alg.bfs
-                        #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        # algorithm = alg.bi_directional_bfs
-                        #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        #algorithm = alg.astar
-                        #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        #algorithm = alg.greedy
-                        #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        algorithm = alg.iterative_astar
-                        start = map.get_start()
-                        if(start == None):
-                            #TODO: Show that start is needed
-                            pass
-                        else:
-                            s = State(Agent(start))
-                            generator_algorithm = iter(algorithm(s))
-                            app_state = AppState.working
-                    elif (app_state == AppState.working):
-                        app_state = AppState.paused
-                    elif (app_state == AppState.paused):
-                        app_state = AppState.working
+                        # #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        # #algorithm = alg.bfs
+                        # #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        # # algorithm = alg.bi_directional_bfs
+                        # #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        # #algorithm = alg.astar
+                        # #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        # #algorithm = alg.greedy
+                        # #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        # algorithm = alg.iterative_astar
+                        # start = map.get_start()
+                        # if(start == None):
+                        #     #TODO: Show that start is needed
+                        #     pass
+                        # else:
+                        #     s = State(Agent(start))
+                        #     generator_algorithm = iter(algorithm(s))
+                        #     app_state = AppState.working
+            #         elif (app_state == AppState.working):
+            #             app_state = AppState.paused
+            #         elif (app_state == AppState.paused):
+            #             app_state = AppState.working
                         
-                    # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # end = choose_end_node(treasures)
-                    # if end:
-                    #     for row in grid:
-                    #         for node in row:
-                    #             node.update_neighbors(grid)
+            #         # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #         # end = choose_end_node(treasures)
+            #         # if end:
+            #         #     for row in grid:
+            #         #         for node in row:
+            #         #             node.update_neighbors(grid)
 
-                    #     reset_map_state(grid)
-                    #     for treasure in treasures:
-                    #         treasure.set_state(st.treasure)
-                    #     bi_directional(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
+            #         #     reset_map_state(grid)
+            #         #     for treasure in treasures:
+            #         #         treasure.set_state(st.treasure)
+            #         #     bi_directional(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
 
-                    # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # for row in grid:
-                    #     for node in row:
-                    #         node.update_neighbors(grid)
+            #         # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #         # for row in grid:
+            #         #     for node in row:
+            #         #         node.update_neighbors(grid)
 
-                    # reset_map_state(grid)
-                    # for treasure in treasures:
-                    #     treasure.set_state(st.treasure)
+            #         # reset_map_state(grid)
+            #         # for treasure in treasures:
+            #         #     treasure.set_state(st.treasure)
 
-                    # end = dfs_depth_limited(lambda: draw(window, grid, st.rows, size, thumbnail), grid, start, st.DEPTH_LIMIT)
+            #         # end = dfs_depth_limited(lambda: draw(window, grid, st.rows, size, thumbnail), grid, start, st.DEPTH_LIMIT)
 
-                    # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # for row in grid:
-                    #     for node in row:
-                    #         node.update_neighbors(grid)
+            #         # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #         # for row in grid:
+            #         #     for node in row:
+            #         #         node.update_neighbors(grid)
 
-                    # reset_map_state(grid)
-                    # for treasure in treasures:
-                    #     treasure.set_state(st.treasure)
+            #         # reset_map_state(grid)
+            #         # for treasure in treasures:
+            #         #     treasure.set_state(st.treasure)
 
-                    # end = dfs(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start)
+            #         # end = dfs(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start)
 
-                    # for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #         # for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     
 
-                    # for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # end = choose_end_node(treasures)
-                    # if end:
-                    #     for row in grid:
-                    #         for node in row:
-                    #             node.update_neighbors(grid)
+            #         # for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #         # end = choose_end_node(treasures)
+            #         # if end:
+            #         #     for row in grid:
+            #         #         for node in row:
+            #         #             node.update_neighbors(grid)
 
-                    #     reset_map_state(grid)
-                    #     for treasure in treasures:
-                    #         treasure.set_state(st.treasure)
-                    #     astar(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
+            #         #     reset_map_state(grid)
+            #         #     for treasure in treasures:
+            #         #         treasure.set_state(st.treasure)
+            #         #     astar(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
 
-                    # for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # end = choose_end_node(treasures)
-                    # if end:
-                    #     for row in grid:
-                    #         for node in row:
-                    #             node.update_neighbors(grid)
+            #         # for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            #         # end = choose_end_node(treasures)
+            #         # if end:
+            #         #     for row in grid:
+            #         #         for node in row:
+            #         #             node.update_neighbors(grid)
 
-                    #     reset_map_state(grid)
-                    #     for treasure in treasures:
-                    #         treasure.set_state(st.treasure)
-                    #     greedy(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
-
-                if event.key == pygame.K_c:
-                    map.clear()
-                    app_state = AppState.drawing
-
-                if event.key == pygame.K_r:
-                    map.reset()
-                    app_state = AppState.drawing
-
-                if event.key == pygame.K_s:
-                    if(app_state == AppState.drawing):
-                        operator = File_map_operator()
-                        operator.write_map(map = map, file_path = "map.txt")
-
-                if event.key == pygame.K_l:
-                    if(app_state == AppState.drawing):
-                        operator = File_map_operator()
-                        map = operator.read_map("map.txt")
-                        table.link_table(map)
-                        map.reset()
-                        main_window.draw()
+            #         #     reset_map_state(grid)
+            #         #     for treasure in treasures:
+            #         #         treasure.set_state(st.treasure)
+            #         #     greedy(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
 
 
     pygame.quit()

@@ -1,6 +1,6 @@
 from cell import Cell
 from settings import Settings as st
-from event_types import Event_type
+from event_args import Pressed_event_args
 from element import Element
 from map import Map
 import pygame
@@ -28,19 +28,18 @@ class Table(Element):
             self.is_coordinates_in_boundaries(self.get_cursor().get_x(), self.get_cursor().get_y())):
             self.get_cursor().draw(window)
     
-    @Element.element_event_wraper
-    def event(self, event_type : Event_type, **kwargs):        
-        if(event_type == Event_type.BUTTON_LEFT_PRESSED):
-            node_row, node_col = self.get_node_position_by_coordinates(x = kwargs['x'], y = kwargs['y'])
-            #Closly tie coursor with thumbnail realization
-            self.__data_source.set_node_state(node_row, 
-                                                  node_col, 
-                                                  new_state = self.get_cursor().get_state())
-        if(event_type == Event_type.BUTTON_RIGHT_PRESSED):
-            node_row, node_col = self.get_node_position_by_coordinates(x = kwargs['x'], y = kwargs['y'])
-            #Closly tie coursor with thumbnail realization
-            self.__data_source.reset_node_state(node_row, 
-                                                  node_col)
+    @Element.element_handler_wraper
+    def left_pressed_handler(self, args : Pressed_event_args):
+        node_row, node_col = self.get_node_position_by_coordinates(x = args.x, y = args.y)
+        self.__data_source.set_node_state(node_row, 
+                                                node_col, 
+                                                new_state = self.get_cursor().get_state())
+    
+    @Element.element_handler_wraper
+    def right_pressed_handler(self, args : Pressed_event_args):  
+        node_row, node_col = self.get_node_position_by_coordinates(x = args.x, y = args.y)
+        self.__data_source.reset_node_state(node_row, 
+                                                node_col)
 
     def link_table(self, data_source : Map):
         self.__data_source = data_source

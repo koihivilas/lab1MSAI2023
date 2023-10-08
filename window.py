@@ -12,11 +12,9 @@ class Window(Element):
     def draw(self, window = None):
         if(window == None):
             window = self.__window
-        window.fill(st.white)
         for _, elements_by_priority in self.__drawable_elments.items():
             for element in elements_by_priority:
                 element.draw(window)
-        pygame.display.update()
 
     @Element.element_event_wraper
     def event(self, event_type, **kwargs):
