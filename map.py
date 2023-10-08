@@ -55,6 +55,15 @@ class Map:
         
         return possible_moves
 
+    def count_visited_nodes(self):
+        visited_nodes = 0
+        for i in range(self.__height):
+            for j in range(self.__width):
+                state = self.__table[i][j].get_state()
+                if state == Map_field_state.PATH or state == Map_field_state.TREASURE or state == Map_field_state.CLOSED:
+                    visited_nodes += 1
+        return visited_nodes
+
     def is_treasure_position(self, position : Position):
         return self.__table[position.y][position.x].get_state() == Map_field_state.TREASURE
     

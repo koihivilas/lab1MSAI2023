@@ -8,6 +8,8 @@ import time
 import pygame
 from typing import List
 from agent import Agent
+from stats import Stats as stats
+
 class StateMachine:
     def __init__(self, map : Map):
         self.map = map
@@ -41,9 +43,13 @@ class StateMachine:
             if st.has_step_delay:
                 time.sleep(st.step_delay)
             
+            if len(open_set) > stats.max_fringe_size:
+                stats.max_fringe_size = len(open_set)
+
             current = open_set.pop(0)
             if self.__is_final(current):
                 self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                stats.path_length = len(current.agent.position_history) - 1
                 return current
             
             for action in self.__possible_actions(current):
@@ -288,10 +294,14 @@ class StateMachine:
         while len(open_set) != 0:
             if st.has_step_delay:
                 time.sleep(st.step_delay)
+
+            if len(open_set) > stats.max_fringe_size:
+                stats.max_fringe_size = len(open_set)
             
             current = open_set.pop()
             if self.__is_final(current):
                 self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                stats.path_length = len(current.agent.position_history) - 1
                 return current
 
             for action in self.__possible_actions(current):

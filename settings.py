@@ -29,7 +29,7 @@ LIGHT_GREY = (195, 195, 195) # Color of the grid (default)
 HAS_STEP_DELAY = False
 STEP_DELAY = 0.05 # seconds (default)
 
-SHOWS_CURRENT_PATH = True
+SHOWS_CURRENT_PATH = False
 HAS_PATH_DELAY = False
 PATH_DELAY = 0.005 # seconds (default)
 
@@ -56,7 +56,7 @@ A_STAR_ITERATIVE = "A* Iterative"
 JPS = "JPS"
 
 GUI_PADDING_X = 200 # padding of the GUI (default) (right of the screen?)
-GUI_PADDING_Y = 100 # padding of the GUI (default) (bottom of the screen?)
+GUI_PADDING_Y = 200 # padding of the GUI (default) (bottom of the screen?)
 
 class Settings:
     # Grid and GUI
