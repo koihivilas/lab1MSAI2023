@@ -62,12 +62,14 @@ class Settings:
     # Grid and GUI
     rows = ROWS
     cols = COLS
+
     gui_padding_x = GUI_PADDING_X
     gui_padding_y = GUI_PADDING_Y
 
     # Pygame
     width = WIDTH
     height = HEIGHT
+
     window = pygame.display.set_mode((width + gui_padding_x, height + gui_padding_y))
     caption = pygame.display.set_caption("Path Finding Visualization")
 
@@ -104,10 +106,6 @@ class Settings:
 
     # For DFS
     depth_limit = DEPTH_LIMIT
-
-    # Algorithm settings
-    algorithm = BFS # default
-    #algorithms[]?
 
     def get_node_size():
         return Settings.width // Settings.cols if (Settings.width > Settings.height) else Settings.height // Settings.rows
