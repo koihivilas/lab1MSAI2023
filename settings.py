@@ -41,7 +41,7 @@ THUMBNAIL_SIZE = 10 # size of the thumbnail following mouse cursor (default)
 THUMBNAIL_MARGIN_X = 14 # margin of the thumbnail from mouse cursor (default)
 THUMBNAIL_MARGIN_Y = 8 # margin of the thumbnail from mouse cursor (default)
 
-DEPTH_LIMIT = 10 # depth limit for DFS (default)
+DEPTH_LIMIT = 2 # depth limit for DFS (default)
 
 # Uninformed search algorithms
 BFS = "BFS"
@@ -56,7 +56,7 @@ A_STAR_ITERATIVE = "A* Iterative"
 JPS = "JPS"
 
 GUI_PADDING_X = 200 # padding of the GUI (default) (right of the screen?)
-GUI_PADDING_Y = 100 # padding of the GUI (default) (bottom of the screen?)
+GUI_PADDING_Y = 200 # padding of the GUI (default) (bottom of the screen?)
 
 class Settings:
     # Grid and GUI
