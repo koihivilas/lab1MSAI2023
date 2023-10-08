@@ -27,9 +27,9 @@ EMPTY = WHITE
 LIGHT_GREY = (195, 195, 195) # Color of the grid (default)
 
 HAS_STEP_DELAY = False
-STEP_DELAY = 0.05 # seconds (default)
+STEP_DELAY = 0.5 # seconds (default)
 
-SHOWS_CURRENT_PATH = True
+SHOWS_CURRENT_PATH = False
 HAS_PATH_DELAY = False
 PATH_DELAY = 0.005 # seconds (default)
 
@@ -41,7 +41,7 @@ THUMBNAIL_SIZE = 10 # size of the thumbnail following mouse cursor (default)
 THUMBNAIL_MARGIN_X = 14 # margin of the thumbnail from mouse cursor (default)
 THUMBNAIL_MARGIN_Y = 8 # margin of the thumbnail from mouse cursor (default)
 
-DEPTH_LIMIT = 2 # depth limit for DFS (default)
+DEPTH_LIMIT = 4 # depth limit for DFS (default)
 
 # Uninformed search algorithms
 BFS = "BFS"

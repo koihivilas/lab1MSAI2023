@@ -156,13 +156,17 @@ def start_algorithm():
     alg = StateMachine(map)
 
     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # algorithm = alg.bfs
-    #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    algorithm = alg.bfs
+    # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # algorithm = alg.dfs
+    # for dfs_limited !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # algorithm = alg.dfs_limited
+    # for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # algorithm = alg.bi_directional_bfs
     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    algorithm = alg.astar
+    # algorithm = alg.astar
     #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #algorithm = alg.greedy
+    # algorithm = alg.greedy
     #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # algorithm = alg.iterative_astar
     start = map.get_start()
