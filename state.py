@@ -1,17 +1,19 @@
 from __future__ import annotations
-from agent import Agent
+from agent import Agent, PseudoCleverAgent
 from map import Map
 from position import Direction
+from copy import deepcopy
 
 class State:
-    def __init__(self, agent : Agent) -> None:
+    def __init__(self, agent : PseudoCleverAgent) -> None:
         self.agent = agent
 
     def move(self, action : Direction) -> State:
         new_agent_position = self.agent.map_position + action
-        new_agent = Agent(new_agent_position, self.agent.position_history.copy())
+        new_agent = PseudoCleverAgent(new_agent_position, self.agent.position_history.copy(), deepcopy(self.agent.map_knowlege))
+        new_agent.reevaluate(new_agent_position)
         return State(new_agent)
-    
+
     def __str__(self) -> str:
         return str(self.agent.map_position)
     

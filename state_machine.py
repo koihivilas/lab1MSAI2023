@@ -27,13 +27,14 @@ class StateMachine:
         self.map.change_node_state(node_position, new_state)
 
     def heuristics(self, state : State):
-        min = float('inf')
-        treasures = self.map.get_treasure_positions()
-        for treasure_position in treasures:
-            distance = state.agent.get_position().manhattan(treasure_position)
-            if distance < min:
-                min = distance
-        return min
+        # min = float('inf')
+        # treasures = self.map.get_treasure_positions()
+        # for treasure_position in treasures:
+        #     distance = state.agent.get_position().manhattan(treasure_position)
+        #     if distance < min:
+        #         min = distance
+        # return min
+        return state.agent.get_evaluation(state.get_position())
 
     def bfs(self, s : State):
         open_set = list()
@@ -115,6 +116,7 @@ class StateMachine:
 
                 if temp_g_score < g_score.get(neighbor, float("inf")): # if we found better path
                     g_score[neighbor] = temp_g_score
+                    heristic = self.heuristics(neighbor)
                     f_score[neighbor] = temp_g_score + self.heuristics(neighbor)
                     if neighbor not in open_set_hash:
                         count += 1

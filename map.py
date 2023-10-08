@@ -2,6 +2,14 @@ from node import Node
 from map_field_states import Map_field_state
 from position import Position, Direction, CardinalDirections
 from typing import List
+from enum import Enum, auto
+from operator import itemgetter
+class Door_colors(Enum):
+    red = auto()
+    green = auto()
+    blue = auto()
+    black = auto()
+    white = auto()
 class Map:
     def __init__(self, rows_amount, colums_amount, start_position = None, trasures_positions = None, exits_positions = None) -> None:
         self.__width = colums_amount
@@ -138,3 +146,35 @@ class Map:
         self.__trasures_positions = []
         self.__start_position = None
         self.__exits_positions = []
+
+    def get_possible_moves(self, position : Position) -> List[Direction]:
+        table = self.__table
+        x, y = position.x, position.y
+        possible_moves = []
+        if y > 0:
+            possible_moves.append(CardinalDirections.UP.value)
+
+        if x < self.__width - 1:
+            possible_moves.append(CardinalDirections.RIGHT.value)
+
+        if y < self.__height - 1:
+            possible_moves.append(CardinalDirections.DOWN.value)
+
+        if x > 0:
+            possible_moves.append(CardinalDirections.LEFT.value)
+        
+        return possible_moves
+    
+    def get_color_to(self, to_position : Position):
+        if(to_position in self.__exits_positions):
+            return Door_colors.black
+        if(to_position in self.__trasures_positions):
+            return Door_colors.white
+        near = {Door_colors.blue:0}
+        for direction in self.get_possible_moves(to_position):
+            node_position = to_position + direction
+            if(node_position in self.__exits_positions):
+                near[Door_colors.red] = near.get(Door_colors.red, 0) + 1
+            if(node_position in self.__trasures_positions):
+                near[Door_colors.green] = near.get(Door_colors.green, 0) + 1
+        return sorted(near.items(), key = itemgetter(1), reverse = True)[0][0]

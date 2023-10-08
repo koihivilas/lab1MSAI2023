@@ -15,7 +15,7 @@ from map import Map
 from event_types import Event_type
 from state_machine import StateMachine
 from state import State
-from agent import Agent
+from agent import Agent, PseudoCleverAgent
 from file_map_operator import File_map_operator
 from enum import Enum, auto
 from event_handler import Event_handler, Event
@@ -156,7 +156,7 @@ def start_algorithm():
     alg = StateMachine(map)
 
     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    algorithm = alg.bfs
+    #algorithm = alg.bfs
     # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # algorithm = alg.dfs
     # for dfs_limited !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -164,7 +164,7 @@ def start_algorithm():
     # for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # algorithm = alg.bi_directional_bfs
     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # algorithm = alg.astar
+    algorithm = alg.astar
     #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # algorithm = alg.greedy
     #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -174,7 +174,7 @@ def start_algorithm():
         #TODO: Show that start is needed
         pass
     else:
-        s = State(Agent(start))
+        s = State(PseudoCleverAgent(start))
         Elements_container().elements["generator_algorithm"] = iter(algorithm(s)) # TODO: None it some moment
         app_state_change(AppState.drawing, AppState.working)   
 
