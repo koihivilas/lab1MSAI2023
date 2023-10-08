@@ -174,6 +174,9 @@ class StateMachine:
         current_set = treasures_set
         current_visited = treasures_visited
         while len(init_set) != 0 and len(treasures_set) != 0:
+            if len(init_visited) + len(treasures_visited) > stats.max_fringe_size:
+                stats.max_fringe_size = len(init_visited) + len(treasures_visited)
+
             current_set = init_set if current_set is treasures_set else treasures_set
             current_visited = init_visited if current_visited is treasures_visited else treasures_visited
             if st.has_step_delay:
@@ -184,6 +187,7 @@ class StateMachine:
                 common_states = common_visited[0]
                 self.__reconstruct_path(common_states[0].agent.position_history[1:], Map_field_state.PATH)
                 self.__reconstruct_path(common_states[1].agent.position_history[1:], Map_field_state.PATH)
+                stats.path_length = len(common_states[0].agent.position_history) + len(common_states[1].agent.position_history) - 2
 
                 return current
             

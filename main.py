@@ -17,7 +17,6 @@ from state import State
 from agent import Agent
 from file_map_operator import File_map_operator
 from text import Text
-from file_browser import FileBrowser
 from stats import Stats as stats
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
@@ -593,7 +592,7 @@ def main(window, width, height):
                     main_window.draw()
 
                     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    algorithm = alg.bfs
+                    # algorithm = alg.bfs
                     # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.dfs
                     #for dfs_depth_limited !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
