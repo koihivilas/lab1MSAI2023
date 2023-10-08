@@ -5,8 +5,8 @@ import pygame
 BLACK = (0, 0, 0)
 
 class Text(Element):
-    def __init__(self, x, y, width, height, text):
-        super().__init__(x, y, width, height)
+    def __init__(self, name,  x, y, width, height, text):
+        super().__init__(name, x, y, width, height)
         self.__text = text
 
         self.__fontname = "arial"
