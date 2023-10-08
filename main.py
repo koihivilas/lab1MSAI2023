@@ -581,6 +581,13 @@ def main(window, width, height):
                 if event.key == pygame.K_SPACE and True:
                     counter = 0
                     stats.reset_stats()
+                    stats.iterations = counter
+                    stats.visited_nodes = map.count_visited_nodes()
+                    max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                    visited_nodes_value.set_text(str(stats.visited_nodes))
+                    path_length_value.set_text(str(stats.path_length))
+                    iterations_value.set_text(str(stats.iterations))
+
                     map.reset()
                     alg = StateMachine(map)
                     main_window.draw()

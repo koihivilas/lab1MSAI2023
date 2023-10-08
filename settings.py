@@ -29,7 +29,7 @@ LIGHT_GREY = (195, 195, 195) # Color of the grid (default)
 HAS_STEP_DELAY = False
 STEP_DELAY = 0.05 # seconds (default)
 
-SHOWS_CURRENT_PATH = False
+SHOWS_CURRENT_PATH = True
 HAS_PATH_DELAY = False
 PATH_DELAY = 0.005 # seconds (default)
 
