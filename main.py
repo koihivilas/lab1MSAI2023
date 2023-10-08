@@ -17,6 +17,8 @@ from agent import Agent
 from file_map_operator import File_map_operator
 from enum import Enum, auto
 from event_handler import Event_handler, Event
+import pygame
+from elements_container import Elements_container
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
 def heuristics(point1, point2):
@@ -491,25 +493,32 @@ def choose_end_node(treasures):
     else:
         return None
 
-def clear(map : Map):
+def clear():
+    map = Elements_container().elements["map"]
     map.clear()
-    #TODO: make it app_state_change(AppState.drawing) 
-    Event_handler().events[Event_type.ON_APP_STATE_CHANGE].invoke(AppState.drawing)
+    app_state_change(Elements_container().elements["app_state"], AppState.drawing)
 
-def reset(map : Map):
+def reset():
+    map = Elements_container().elements["map"]
     map.reset()
-    #TODO: make it app_state_change(AppState.drawing) 
-    Event_handler().events[Event_type.ON_APP_STATE_CHANGE].invoke(AppState.drawing)
+    app_state_change(Elements_container().elements["app_state"], AppState.drawing)
 
-def save_map(map : Map):
+def save_map():
+    map = Elements_container().elements["map"]
+    table = Elements_container().elements["table"]
     operator = File_map_operator()
     operator.write_map(map = map, file_path = "map.txt")
+    app_state_change(Elements_container().elements["app_state"], AppState.drawing)
 
-def load_map(map : Map, table : Table):
+def load_map():
+    map = Elements_container().elements["map"]
+    table = Elements_container().elements["table"]
     operator = File_map_operator()
     map = operator.read_map("map.txt")
     table.link_table(map)
     map.reset()
+    Elements_container().elements["map"] = map
+    app_state_change(Elements_container().elements["app_state"], AppState.drawing)
 
 class AppState(Enum):
     starting = auto()
@@ -517,54 +526,88 @@ class AppState(Enum):
     working = auto()
     paused = auto()
 
-def app_state_change(current_state : AppState, new_state : AppState, table):
+def app_state_change(current_state : AppState, new_state : AppState):
+    map = Elements_container().elements["map"]
+    table = Elements_container().elements["table"]
+    thumbnail = Elements_container().elements["table_thumbnail"]
     event_handler = Event_handler()
     if(new_state == AppState.drawing):
+        Elements_container().elements["app_state"] = AppState.drawing
         if(current_state == AppState.starting):
             event_handler.add_handler(Event_type.ON_KEY_S,
-                                    lambda: save_map(map))
+                                    save_map)
             event_handler.add_handler(Event_type.ON_KEY_L,
-                                    lambda: load_map(map, table))   
+                                    load_map)   
             event_handler.add_handler(Event_type.ON_K_SPACE,
-                                    lambda: start_algorithm())
+                                    start_algorithm)
             table.enable_events()
         elif(current_state == AppState.working):
             event_handler.remove_handler(Event_type.ON_K_SPACE,
-                                    lambda: pause_algorithm())
+                                    pause_algorithm)
+            event_handler.remove_handler(Event_type.BEFORE_DRAW,
+                                    algroithm_step)
             table.enable_events()
             event_handler.add_handler(Event_type.ON_KEY_S,
-                                    lambda: save_map(map))
+                                    save_map)
             event_handler.add_handler(Event_type.ON_KEY_L,
-                                    lambda: load_map(map, table))   
+                                    load_map)   
             event_handler.add_handler(Event_type.ON_K_SPACE,
-                                    lambda: start_algorithm())
-            
+                                    start_algorithm)
+        elif(current_state == AppState.paused):
+            event_handler.remove_handler(Event_type.ON_K_SPACE,
+                                    continue_algorithm)
+            table.enable_events()
+            event_handler.add_handler(Event_type.ON_KEY_S,
+                                    save_map)
+            event_handler.add_handler(Event_type.ON_KEY_L,
+                                    load_map)   
+            event_handler.add_handler(Event_type.ON_K_SPACE,
+                                    start_algorithm)
+        elif(current_state == AppState.drawing):
+            pass
     if(new_state == AppState.working):
+        Elements_container().elements["app_state"] = AppState.working
         if(current_state == AppState.drawing):
             event_handler.remove_handler(Event_type.ON_KEY_S,
-                                    lambda: save_map(map))
+                                    save_map)
             event_handler.remove_handler(Event_type.ON_KEY_L,
-                                    lambda: load_map(map, table))  
+                                    load_map)  
             event_handler.remove_handler(Event_type.ON_K_SPACE,
-                                    lambda: start_algorithm())
+                                    start_algorithm)
             table.disable_events()
             event_handler.add_handler(Event_type.ON_K_SPACE,
-                                    lambda: pause_algorithm())
+                                    pause_algorithm)
+            event_handler.add_handler(Event_type.BEFORE_DRAW,
+                                    algroithm_step)
         if(current_state == AppState.paused):
             event_handler.remove_handler(Event_type.ON_K_SPACE,
-                                    lambda: continue_algorithm())
+                                    continue_algorithm)
             event_handler.add_handler(Event_type.ON_K_SPACE,
-                                    lambda: pause_algorithm())          
+                                    pause_algorithm)      
+            event_handler.add_handler(Event_type.BEFORE_DRAW,
+                                    algroithm_step)    
     if(new_state == AppState.paused):
+        Elements_container().elements["app_state"] = AppState.paused
         if(current_state == AppState.working):
             event_handler.remove_handler(Event_type.ON_K_SPACE,
-                                    lambda: pause_algorithm())  
+                                    pause_algorithm)  
+            event_handler.remove_handler(Event_type.BEFORE_DRAW,
+                                    algroithm_step)
             event_handler.add_handler(Event_type.ON_K_SPACE,
-                                    lambda: continue_algorithm())
+                                    continue_algorithm)
 
-
+def algroithm_step():
+    try:
+        result = next(Elements_container().elements["generator_algorithm"])
+    except StopIteration as ex:
+        result = ex.value
+        if result is None:
+            #TODO: Say something like world will suffer, path not found
+            pass
+        app_state_change(AppState.working, AppState.drawing)
 
 def start_algorithm():
+    map = Elements_container().elements["map"]
     alg = StateMachine(map)
 
     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -583,7 +626,7 @@ def start_algorithm():
         pass
     else:
         s = State(Agent(start))
-        generator_algorithm = iter(algorithm(s))
+        Elements_container().elements["generator_algorithm"] = iter(algorithm(s))
         app_state_change(AppState.drawing, AppState.working)   
 
 def pause_algorithm():
@@ -596,26 +639,25 @@ def continue_algorithm():
 def main(window, width, height):
     map = Map(st.rows, st.cols)
 
+    Elements_container().add_element("map", map)
+    Elements_container().add_element("generator_algorithm", None)
+    Elements_container().add_element("app_state", AppState.starting)
     #UI
-    thumbnail = Thumbnail(Map_field_state.START,
+    thumbnail = Thumbnail("table_thumbnail", Map_field_state.START,
                           st.thumbnail_size, st.thumbnail_margin_x, st.thumbnail_margin_y,
                           possible_states = [Map_field_state.START, Map_field_state.TREASURE, Map_field_state.EXIT])
 
     node_size = st.get_node_size()
-    table = Table(0, 0, st.cols * node_size, st.rows * node_size, node_size, data_source = map, mouse_thumbnail = thumbnail)
-
-    main_window = Window(window, width, height)
+    table = Table("table", 0, 0, st.cols * node_size, st.rows * node_size, node_size, data_source = map, mouse_thumbnail = thumbnail)
+    main_window = Window("main_window", window, width, height)
     main_window.add_element(table, 1)
-
+    
     start = None
     end = None # for bfs not necessary
 
     treasures = []
-
     run = True
 
-    generator_algorithm = None
-    app_state = AppState.drawing
 
     #regiser events
     event_handler = Event_handler()
@@ -624,14 +666,16 @@ def main(window, width, height):
     event_handler.add_handler(Event_type.AFTER_DRAW,
                               pygame.display.update)
     event_handler.add_handler(Event_type.ON_KEY_C,
-                              lambda: clear(map))
+                              clear)
     event_handler.add_handler(Event_type.ON_KEY_R,
-                              lambda: reset(map))
+                              reset)
+    app_state_change(AppState.starting, AppState.drawing)
     
     while run:
-        Event_handler().events[Event_type.BEFORE_DRAW].invoke()
+        Event_handler().events[Event_type.BEFORE_DRAW.name].invoke()
         main_window.draw()
-        Event_handler().events[Event_type.AFTER_DRAW].invoke()
+        Event_handler().events[Event_type.AFTER_DRAW.name].invoke()
+
         #TODO: Make EventHandler class
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

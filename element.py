@@ -1,10 +1,13 @@
 import pygame
+from elements_container import Elements_container
 class Element:
-    def __init__(self, x, y, width, height, cursor = None) -> None:
+    def __init__(self, name, x, y, width, height, cursor = None) -> None:
         self.set_x(x)
         self.set_y(y)
         self.set_height(height)
         self.set_width(width)
+        self.__name = name
+        Elements_container().add_element(name, self)
         self.enabled = True
         self.visible = True
         self.active = True
@@ -30,10 +33,10 @@ class Element:
         return inner_function
 
     def element_handler_wraper(event):
-        def inner_function(self, **kwargs):
+        def inner_function(self, *args, **kwargs):
             if(not self.is_active()):
                 return
-            event(self, **kwargs)
+            event(self, *args, **kwargs)
         return inner_function
     
     #Getters and setters
@@ -60,6 +63,9 @@ class Element:
 
     def set_width(self, width):
         self.__width = width
+
+    def get_name(self):
+        return self.__name
 
     def enable(self):
         self.visible = True

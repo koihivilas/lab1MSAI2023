@@ -2,8 +2,8 @@ from element import Element
 import pygame
 
 class Cell(Element):
-    def __init__(self, x, y, size, parent, linked_node = None):
-        super().__init__(x, y, size, size)
+    def __init__(self, name, x, y, size, parent, linked_node = None):
+        super().__init__(name, x, y, size, size)
         self.__parent = parent
         #Very dumb idea,  Cell saves link on Node which it represents
         self.__node = linked_node

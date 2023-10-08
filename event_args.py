@@ -1,4 +1,9 @@
-class Pressed_event_args:
-    def __init__(self, mouse_position) -> None:
-        self.x = mouse_position.x
-        self.y = mouse_position.y
+class Click_event_args:
+    def __init__(self, x, y) -> None:
+        self.x = x
+        self.y = y
+
+
+class Wheel_event_agrs:
+    def __init__(self, wheel_y) -> None:
+        self.y = wheel_y

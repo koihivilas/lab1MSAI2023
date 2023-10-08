@@ -281,3 +281,49 @@ class StateMachine:
             else:
                 return result
         
+    def DLS(self, s):
+        def DLS2(self, s, depth):
+            if ( depth >= 0 ):
+                if ( self.__is_final(s) ):
+                    self.map.change_nodes_states(s.agent.position_history[1:-1],Map_field_state.PATH)
+                    return s
+                if st.shows_current_path:
+                    self.__reconstruct_path(s.agent.position_history[1:-1], Map_field_state.PATH)
+                    yield
+                if st.shows_current_path:
+                    self.__reconstruct_path(s.agent.position_history[1:-1], Map_field_state.CLOSED)
+                
+                for action in self.__posible_actions(s):
+                    generator = iter(DLS2(self, s.move(action), depth-1))
+                    stop = False
+                    result = None
+                    while not stop:
+                        try:
+                            result = next(generator)
+                            yield result
+                        except StopIteration as ex:
+                            result = ex.value
+                            if(result is not None):
+                                return result
+                            stop = True
+                    
+        depth = st.depth_limit
+        if ( depth >= 0 ):
+            if self.__is_final(s):
+                map.change_nodes_states(s.agent.position_history[1:-1],Map_field_state.PATH)
+                return s    
+
+            for action in self.__posible_actions(s):
+                generator = iter(DLS2(self, s.move(action), depth-1))
+                stop = False
+                result = None
+                while not stop:
+                    try:
+                        result = next(generator)
+                        yield result
+                    except StopIteration as ex:
+                        result = ex.value
+                        if(result is not None):
+                            return result
+                        stop = True
+        return None
