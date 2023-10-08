@@ -1,9 +1,13 @@
+import pygame
+from elements_container import Elements_container
 class Element:
-    def __init__(self, x, y, width, height, cursor = None) -> None:
+    def __init__(self, name, x, y, width, height, cursor = None) -> None:
         self.set_x(x)
         self.set_y(y)
         self.set_height(height)
         self.set_width(width)
+        self.__name = name
+        Elements_container().add_element(name, self)
         self.enabled = True
         self.visible = True
         self.active = True
@@ -20,11 +24,6 @@ class Element:
             self.is_coordinates_in_boundaries(self.get_cursor().get_x(), self.get_cursor().get_y())):
             self.get_cursor().draw(window)
     
-    def __event_coursor(self, event_type, **kwargs):
-        if(self.is_cursor_active() and 
-            self.is_coordinates_in_boundaries(self.get_cursor().get_x(), self.get_cursor().get_y())):
-            self.get_cursor().event(event_type, **kwargs)
-    
     def element_draw_wraper(draw):
         def inner_function(self, window = None):
             if(not self.enabled or not self.visible):
@@ -33,12 +32,11 @@ class Element:
             self.__draw_coursor(window)
         return inner_function
 
-    def element_event_wraper(event):
-        def inner_function(self, event_type, **kwargs):
-            if(not self.enabled or not self.active):
+    def element_handler_wraper(event):
+        def inner_function(self, *args, **kwargs):
+            if(not self.is_active()):
                 return
-            event(self, event_type, **kwargs)
-            self.__event_coursor(event_type, **kwargs)
+            event(self, *args, **kwargs)
         return inner_function
     
     #Getters and setters
@@ -65,6 +63,9 @@ class Element:
 
     def set_width(self, width):
         self.__width = width
+
+    def get_name(self):
+        return self.__name
 
     def enable(self):
         self.visible = True
@@ -93,6 +94,10 @@ class Element:
     
     def set_cursor(self, cursor):
         self.__cursor = cursor
+    
+    def is_active(self):
+        pos_x, pos_y = pygame.mouse.get_pos()
+        return self.enabled and self.active and self.is_coordinates_in_boundaries(pos_x, pos_y)
     
     def is_cursor_active(self):
         return self.get_cursor() and self.get_cursor().enabled and self.get_cursor().active
