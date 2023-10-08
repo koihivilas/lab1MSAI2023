@@ -237,12 +237,16 @@ class StateMachine:
             while not open_set.empty():
                 if st.has_step_delay:
                     time.sleep(st.step_delay)
+                
+                if Queue.qsize(open_set) > stats.max_fringe_size:
+                    stats.max_fringe_size = Queue.qsize(open_set)
 
                 current = open_set.get()[2]
                 open_set_hash.remove(current)
 
                 if self.__is_final(current):
                     self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                    stats.path_length = len(current.agent.position_history) - 1
                     return current
 
                 for action in self.__possible_actions(current):
