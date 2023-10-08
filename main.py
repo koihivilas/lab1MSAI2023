@@ -525,7 +525,7 @@ def main(window, width, height):
                 result = next(generator_algorithm)
             except StopIteration as ex:
                 result = ex.value
-                if result == None:
+                if result is None:
                     #TODO: Say something like world will suffer, path not found
                     pass
                 app_state = AppState.drawing
