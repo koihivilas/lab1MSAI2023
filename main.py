@@ -1,4 +1,5 @@
 import tkinter
+from tkinter import filedialog
 import pygame
 import math
 import time
@@ -35,23 +36,30 @@ def reset():
     stats.reset_stats()
     app_state_change(Elements_container().elements["app_state"], AppState.drawing)
 
-# TODO: Make it work with tkinter
 def save_map():
-    map = Elements_container().elements["map"]
-    table = Elements_container().elements["table"]
-    operator = File_map_operator()
-    operator.write_map(map = map, file_path = "map.txt")
-    app_state_change(Elements_container().elements["app_state"], AppState.drawing)
+    path_to_save = tkinter.filedialog.asksaveasfilename(defaultextension='.txt', initialfile = 'my_map')
+    if path_to_save:
+        stats.reset_stats()
+        map = Elements_container().elements["map"]
+        operator = File_map_operator()
+        operator.write_map(map = map, file_path = path_to_save)
+        app_state_change(Elements_container().elements["app_state"], AppState.drawing)
 
 def load_map():
-    map = Elements_container().elements["map"]
-    table = Elements_container().elements["table"]
-    operator = File_map_operator()
-    map = operator.read_map("map.txt")
-    table.link_table(map)
-    map.reset()
-    Elements_container().elements["map"] = map
-    app_state_change(Elements_container().elements["app_state"], AppState.drawing)
+    filetypes = (
+                            ('maps', '*.txt'),
+                            ('All files', '*.*')
+                        )
+    filename = tkinter.filedialog.askopenfilename(filetypes=filetypes)
+    if filename:
+        stats.reset_stats()
+        operator = File_map_operator()
+        table = Elements_container().elements["table"]
+        map = operator.read_map(filename)
+        table.link_table(map)
+        map.reset()
+        Elements_container().elements["map"] = map
+        app_state_change(Elements_container().elements["app_state"], AppState.drawing)
 
 class AppState(Enum):
     starting = auto()
@@ -173,9 +181,6 @@ def continue_algorithm():
     app_state_change(AppState.paused, AppState.working)
 
 def update_stats():
-    # stats.iterations = counter
-        # if is_working:
-            # stats.visited_nodes = map.count_visited_nodes()
     Elements_container().elements["max_fringe_size_value"].set_text(str(stats.max_fringe_size))
     Elements_container().elements["visited_nodes_value"].set_text(str(stats.visited_nodes))
     Elements_container().elements["path_length_value"].set_text(str(stats.path_length))
@@ -217,7 +222,7 @@ def main(window, width, height):
     
     run = True
 
-    #regiser events
+    #register events
     event_handler = Event_handler()
     event_handler.add_handler(Event_type.BEFORE_DRAW,
                               lambda: window.fill(st.white))
@@ -235,156 +240,10 @@ def main(window, width, height):
         main_window.draw()
         Event_handler().events[Event_type.AFTER_DRAW.name].invoke()
 
-        #TODO: Make EventHandler class
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             Event_handler().handle_pygame(event, main_window)
-
-            # if event.type == pygame.KEYDOWN:
-            #     if event.key == pygame.K_SPACE:
-            #         if (app_state == AppState.drawing):
-                        # alg = StateMachine(map)
-
-                        # #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        # #algorithm = alg.bfs
-                        # #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        # # algorithm = alg.bi_directional_bfs
-                        # #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        # #algorithm = alg.astar
-                        # #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        # #algorithm = alg.greedy
-                        # #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        # algorithm = alg.iterative_astar
-                        # start = map.get_start()
-                        # if(start == None):
-                        #     #TODO: Show that start is needed
-                        #     pass
-                        # else:
-                        #     s = State(Agent(start))
-                        #     generator_algorithm = iter(algorithm(s))
-                        #     app_state = AppState.working
-            #         elif (app_state == AppState.working):
-            #             app_state = AppState.paused
-            #         elif (app_state == AppState.paused):
-            #             app_state = AppState.working
-                        
-            #         # for bi-directional !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            #         # end = choose_end_node(treasures)
-            #         # if end:
-            #         #     for row in grid:
-            #         #         for node in row:
-            #         #             node.update_neighbors(grid)
-
-            #         #     reset_map_state(grid)
-            #         #     for treasure in treasures:
-            #         #         treasure.set_state(st.treasure)
-            #         #     bi_directional(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
-
-            # if event.type == pygame.KEYDOWN:
-            #     if event.key == pygame.K_SPACE and True:
-            #         map.reset()
-            #         # counter = 0
-            #         # stats.reset_stats()
-            #         max_fringe_size_value.set_text(str(stats.max_fringe_size))
-            #         visited_nodes_value.set_text(str(stats.visited_nodes))
-            #         iterations_value.set_text(str(stats.iterations))
-            #         path_length_value.set_text(str(stats.path_length))
-            #         alg = StateMachine(map)
-                    
-            #         main_window.draw()
-
-            #         algorithm = alg.iterative_astar
-
-            #         # end = dfs_depth_limited(lambda: draw(window, grid, st.rows, size, thumbnail), grid, start, st.DEPTH_LIMIT)
-
-            #         # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            #         # for row in grid:
-            #         #     for node in row:
-            #         #         node.update_neighbors(grid)
-
-            #         # reset_map_state(grid)
-            #         # for treasure in treasures:
-            #         #     treasure.set_state(st.treasure)
-
-            #         # end = dfs(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start)
-
-            #         # for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    
-
-            #         # for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            #         # end = choose_end_node(treasures)
-            #         # if end:
-            #         #     for row in grid:
-            #         #         for node in row:
-            #         #             node.update_neighbors(grid)
-
-            #         #     reset_map_state(grid)
-            #         #     for treasure in treasures:
-            #         #         treasure.set_state(st.treasure)
-            #         #     astar(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
-
-            #         # for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            #         # end = choose_end_node(treasures)
-            #         # if end:
-            #         #     for row in grid:
-            #         #         for node in row:
-            #         #             node.update_neighbors(grid)
-
-            #         #     reset_map_state(grid)
-            #         #     for treasure in treasures:
-            #         #         treasure.set_state(st.treasure)
-            #         #     greedy(lambda: draw(window, grid, st.rows, st.cols, width, height, thumbnail), grid, start, end)
-
-                # if event.key == pygame.K_c:
-                #     map.clear()
-                #     # stats.reset_stats()
-                #     # counter = 0
-                #     max_fringe_size_value.set_text(str(stats.max_fringe_size))
-                #     visited_nodes_value.set_text(str(stats.visited_nodes))
-                #     path_length_value.set_text(str(stats.path_length))
-                #     iterations_value.set_text(str(stats.iterations))
-
-                # if event.key == pygame.K_r:
-                #     map.reset()
-                #     # counter = 0
-                #     # stats.reset_stats()
-                #     max_fringe_size_value.set_text(str(stats.max_fringe_size))
-                #     visited_nodes_value.set_text(str(stats.visited_nodes))
-                #     path_length_value.set_text(str(stats.path_length))
-                #     iterations_value.set_text(str(stats.iterations))
-
-                # if event.key == pygame.K_s:
-                #     operator = File_map_operator()
-                #     path_to_save = tkinter.filedialog.asksaveasfilename(defaultextension='.txt', initialfile = 'my_map')
-                #     if path_to_save:
-                #         operator.write_map(map = map, file_path = path_to_save)
-                #         # counter = 0
-                #         # stats.reset_stats()
-                #         max_fringe_size_value.set_text(str(stats.max_fringe_size))
-                #         visited_nodes_value.set_text(str(stats.visited_nodes))
-                #         path_length_value.set_text(str(stats.path_length))
-                #         iterations_value.set_text(str(stats.iterations))
-
-                # if event.key == pygame.K_l:
-                #     operator = File_map_operator()
-                #     filetypes = (
-                #             ('maps', '*.txt'),
-                #             ('All files', '*.*')
-                #         )
-                #     filename = tkinter.filedialog.askopenfilename(filetypes=filetypes)
-                #     if filename:
-                #         map = operator.read_map(filename)
-                #         # counter = 0
-                #         # stats.reset_stats()
-                #         max_fringe_size_value.set_text(str(stats.max_fringe_size))
-                #         visited_nodes_value.set_text(str(stats.visited_nodes))
-                #         path_length_value.set_text(str(stats.path_length))
-                #         iterations_value.set_text(str(stats.iterations))
-                #     table.link_table(map)
-                #     map.reset()
-                #     main_window.draw()
-
 
     pygame.quit()
 
