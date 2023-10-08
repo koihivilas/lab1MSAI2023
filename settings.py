@@ -41,7 +41,7 @@ THUMBNAIL_SIZE = 10 # size of the thumbnail following mouse cursor (default)
 THUMBNAIL_MARGIN_X = 14 # margin of the thumbnail from mouse cursor (default)
 THUMBNAIL_MARGIN_Y = 8 # margin of the thumbnail from mouse cursor (default)
 
-DEPTH_LIMIT = 10 # depth limit for DFS (default)
+DEPTH_LIMIT = 4 # depth limit for DFS (default)
 
 # Uninformed search algorithms
 BFS = "BFS"

@@ -444,7 +444,6 @@ def draw(window, grid, rows, cols, width, height, thumbnail):
 
     pygame.display.update()
 
-
 def get_clicked_pos(pos, node_size):
     x, y = pos
 
@@ -556,11 +555,11 @@ def main(window, width, height):
                     main_window.draw()
 
                     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # algorithm = alg.bfs
+                    algorithm = alg.bfs
                     # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.dfs
                     #for dfs_depth_limited !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    algorithm = alg.dfs_limited
+                    # algorithm = alg.dfs_limited
                     #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.bi_directional_bfs
                     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -322,7 +322,7 @@ class StateMachine:
             current = open_set.pop()
             curr_depth = len(current.agent.position_history)
 
-            if curr_depth > st.depth_limit:
+            if curr_depth > st.depth_limit + 2:
                 continue
 
             if self.__is_final(current):
@@ -333,7 +333,7 @@ class StateMachine:
                 neighbor = current.move(action)
                 position = neighbor.agent.get_position()
                 neighbor_state = self.map.get_table()[position.y][position.x].get_state()
-                if(neighbor_state not in [Map_field_state.START, Map_field_state.CLOSED]):
+                if(neighbor_state not in [Map_field_state.START]):
                     open_set.append(neighbor)
                     if st.shows_current_path:
                         self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.PATH)
@@ -341,7 +341,7 @@ class StateMachine:
                     if st.shows_current_path:
                         self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.CLOSED)
                     if not self.__is_final(neighbor):
-                        self.__reconstruct_node(position, Map_field_state.OPEN)
+                        self.__reconstruct_node(position, Map_field_state.CLOSED)
             if current.agent.get_position() != self.map.get_start():
                 self.__reconstruct_node(current.agent.get_position(), Map_field_state.CLOSED)
             yield
