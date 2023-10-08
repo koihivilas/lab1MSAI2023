@@ -596,15 +596,15 @@ def main(window, width, height):
                     # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.dfs
                     #for dfs_depth_limited !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    algorithm = alg.dfs_limited
+                    # algorithm = alg.dfs_limited
                     #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.bi_directional_bfs
                     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algorithm = alg.astar
+                    # algorithm = alg.astar
                     #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algorithm = alg.greedy
+                    # algorithm = alg.greedy
                     #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # algorithm = alg.iterative_astar
+                    algorithm = alg.iterative_astar
 
                     if(not is_working):
                         s = State(Agent(map.get_start()))
