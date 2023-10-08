@@ -8,12 +8,14 @@ import time
 import pygame
 from typing import List
 from agent import Agent
+from stats import Stats as stats
+
 class StateMachine:
     def __init__(self, map : Map):
         self.map = map
     
-    def __posible_actions(self, state : State):
-        return self.map.get_posible_actions(state.agent.map_position)
+    def __possible_actions(self, state : State):
+        return self.map.get_possible_actions(state.agent.map_position)
     
     def __is_final(self, state : State):
         return self.map.is_treasure_position(state.agent.map_position)
@@ -41,12 +43,16 @@ class StateMachine:
             if st.has_step_delay:
                 time.sleep(st.step_delay)
             
+            if len(open_set) > stats.max_fringe_size:
+                stats.max_fringe_size = len(open_set)
+
             current = open_set.pop(0)
             if self.__is_final(current):
                 self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                stats.path_length = len(current.agent.position_history) - 1
                 return current
             
-            for action in self.__posible_actions(current):
+            for action in self.__possible_actions(current):
                 neighbor = current.move(action)
                 position = neighbor.agent.get_position()
                 neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -82,14 +88,18 @@ class StateMachine:
             if st.has_step_delay:
                 time.sleep(st.step_delay)
 
+            if Queue.qsize(open_set) > stats.max_fringe_size:
+                stats.max_fringe_size = Queue.qsize(open_set)
+
             current = open_set.get()[2]
             open_set_hash.remove(current)
 
             if self.__is_final(current):
                 self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                stats.path_length = len(current.agent.position_history) - 1
                 return current
 
-            for action in self.__posible_actions(current):
+            for action in self.__possible_actions(current):
                 neighbor = current.move(action)
                 position = neighbor.agent.get_position()
                 neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -130,14 +140,18 @@ class StateMachine:
             while not open_set.empty():
                 if st.has_step_delay:
                     time.sleep(st.step_delay)
+                
+                if Queue.qsize(open_set) > stats.max_fringe_size:
+                    stats.max_fringe_size = Queue.qsize(open_set)
 
                 current = open_set.get()[2]
 
                 if self.__is_final(current):
                     self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                    stats.path_length = len(current.agent.position_history) - 1
                     return current
 
-                for action in self.__posible_actions(current):
+                for action in self.__possible_actions(current):
                     neighbor = current.move(action)
                     position = neighbor.agent.get_position()
                     neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -168,6 +182,9 @@ class StateMachine:
         current_set = treasures_set
         current_visited = treasures_visited
         while len(init_set) != 0 and len(treasures_set) != 0:
+            if len(init_visited) + len(treasures_visited) > stats.max_fringe_size:
+                stats.max_fringe_size = len(init_visited) + len(treasures_visited)
+
             current_set = init_set if current_set is treasures_set else treasures_set
             current_visited = init_visited if current_visited is treasures_visited else treasures_visited
             if st.has_step_delay:
@@ -178,12 +195,13 @@ class StateMachine:
                 common_states = common_visited[0]
                 self.__reconstruct_path(common_states[0].agent.position_history[1:], Map_field_state.PATH)
                 self.__reconstruct_path(common_states[1].agent.position_history[1:], Map_field_state.PATH)
+                stats.path_length = len(common_states[0].agent.position_history) + len(common_states[1].agent.position_history) - 2
 
                 return current
             
             current = current_set.pop(0)
 
-            for action in self.__posible_actions(current):
+            for action in self.__possible_actions(current):
                 neighbor = current.move(action)
                 position = neighbor.agent.get_position()
                 neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -219,15 +237,19 @@ class StateMachine:
             while not open_set.empty():
                 if st.has_step_delay:
                     time.sleep(st.step_delay)
+                
+                if Queue.qsize(open_set) > stats.max_fringe_size:
+                    stats.max_fringe_size = Queue.qsize(open_set)
 
                 current = open_set.get()[2]
                 open_set_hash.remove(current)
 
                 if self.__is_final(current):
                     self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                    stats.path_length = len(current.agent.position_history) - 1
                     return current
 
-                for action in self.__posible_actions(current):
+                for action in self.__possible_actions(current):
                     neighbor = current.move(action)
                     position = neighbor.agent.get_position()
                     neighbor_state = self.map.get_table()[position.y][position.x].get_state()
@@ -281,3 +303,75 @@ class StateMachine:
             else:
                 return result
         
+    def dfs(self, s : State):
+        open_set = list()
+        open_set.append(s)
+
+        while len(open_set) != 0:
+            if st.has_step_delay:
+                time.sleep(st.step_delay)
+
+            if len(open_set) > stats.max_fringe_size:
+                stats.max_fringe_size = len(open_set)
+            
+            current = open_set.pop()
+            if self.__is_final(current):
+                self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                stats.path_length = len(current.agent.position_history) - 1
+                return current
+
+            for action in self.__possible_actions(current):
+                neighbor = current.move(action)
+                position = neighbor.agent.get_position()
+                neighbor_state = self.map.get_table()[position.y][position.x].get_state()
+                if(neighbor_state not in [Map_field_state.START, Map_field_state.CLOSED]):
+                    open_set.append(neighbor)
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.PATH)
+                        yield
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.CLOSED)
+                    if not self.__is_final(neighbor):
+                        self.__reconstruct_node(position, Map_field_state.OPEN)
+            if current.agent.get_position() != self.map.get_start():
+                self.__reconstruct_node(current.agent.get_position(), Map_field_state.CLOSED)
+            yield
+
+    def dfs_limited(self, s : State):
+        open_set = list()
+        open_set.append(s)
+
+        while len(open_set) != 0:
+            if st.has_step_delay:
+                time.sleep(st.step_delay)
+
+            if len(open_set) > stats.max_fringe_size:
+                stats.max_fringe_size = len(open_set)
+            
+            current = open_set.pop()
+            curr_depth = len(current.agent.position_history)
+
+            if curr_depth > st.depth_limit + 2:
+                continue
+
+            if self.__is_final(current):
+                self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                stats.path_length = len(current.agent.position_history) - 1
+                return current
+
+            for action in self.__possible_actions(current):
+                neighbor = current.move(action)
+                position = neighbor.agent.get_position()
+                neighbor_state = self.map.get_table()[position.y][position.x].get_state()
+                if(neighbor_state not in [Map_field_state.START]):
+                    open_set.append(neighbor)
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.PATH)
+                        yield
+                    if st.shows_current_path:
+                        self.__reconstruct_path(neighbor.agent.position_history[1:-1], Map_field_state.CLOSED)
+                    if not self.__is_final(neighbor):
+                        self.__reconstruct_node(position, Map_field_state.CLOSED)
+            if current.agent.get_position() != self.map.get_start():
+                self.__reconstruct_node(current.agent.get_position(), Map_field_state.CLOSED)
+            yield

@@ -1,3 +1,4 @@
+import tkinter
 import pygame
 import math
 import time
@@ -15,6 +16,8 @@ from state_machine import StateMachine
 from state import State
 from agent import Agent
 from file_map_operator import File_map_operator
+from text import Text
+from stats import Stats as stats
 
 # TODO: make possible to change heuristic from Manhatten to Euclidean or other
 def heuristics(point1, point2):
@@ -442,7 +445,6 @@ def draw(window, grid, rows, cols, width, height, thumbnail):
 
     pygame.display.update()
 
-
 def get_clicked_pos(pos, node_size):
     x, y = pos
 
@@ -490,6 +492,7 @@ def choose_end_node(treasures):
         return None
 
 def main(window, width, height):
+    pygame.init()
     map = Map(st.rows, st.cols)
 
     #UI
@@ -500,8 +503,29 @@ def main(window, width, height):
     node_size = st.get_node_size()
     table = Table(0, 0, st.cols * node_size, st.rows * node_size, node_size, data_source = map, mouse_thumbnail = thumbnail)
 
+    # stats text
+    max_fringe_size_text = Text(10, table.get_height() + 10, 100, 100, "Max fringe size: ")
+    max_fringe_size_value = Text(max_fringe_size_text.get_width() + 10, table.get_height() + 10, 100, 100, "0")
+    visited_nodes_text = Text(10, table.get_height() + max_fringe_size_text.get_height() + 10, 100, 100, "Visited nodes: ")
+    visited_nodes_value = Text(visited_nodes_text.get_width() + 10, table.get_height() + max_fringe_size_text.get_height() + 10, 100, 100, "0")
+    path_length_text = Text(10, table.get_height() + max_fringe_size_text.get_height() + visited_nodes_text.get_height() + 10, 100, 100, "Path length: ")
+    path_length_value = Text(path_length_text.get_width() + 10, table.get_height() + max_fringe_size_text.get_height() + visited_nodes_text.get_height() + 10, 100, 100, "0")
+    iterations_text = Text(10, table.get_height() + max_fringe_size_text.get_height() + visited_nodes_text.get_height() + path_length_text.get_height() + 10, 100, 100, "Iterations: ")
+    iterations_value = Text(iterations_text.get_width() + 10, table.get_height() + max_fringe_size_text.get_height() + visited_nodes_text.get_height() + path_length_text.get_height() + 10, 100, 100, "0")
+
+    # btn = Button()
+
     main_window = Window(window, width, height)
     main_window.add_element(table, 1)
+    main_window.add_element(max_fringe_size_text, 2)
+    main_window.add_element(max_fringe_size_value, 2)
+    main_window.add_element(visited_nodes_text, 2)
+    main_window.add_element(visited_nodes_value, 2)
+    main_window.add_element(path_length_text, 2)
+    main_window.add_element(path_length_value, 2)
+    main_window.add_element(iterations_text, 2)
+    main_window.add_element(iterations_value, 2)
+    # main_window.add_element(test_text, 2)
 
     start = None
     end = None # for bfs not necessary
@@ -512,14 +536,27 @@ def main(window, width, height):
 
     generator_algorithm = None
     is_working = False
+    counter = 0
 
     while run:
         if(is_working):
             try:
                 result = next(generator_algorithm)
+                counter += 1
             except StopIteration as ex:
                 result = ex.value
                 is_working = False
+            
+        # show stats here
+        # if not is_working:
+        stats.iterations = counter
+        if is_working:
+            stats.visited_nodes = map.count_visited_nodes()
+        max_fringe_size_value.set_text(str(stats.max_fringe_size))
+        visited_nodes_value.set_text(str(stats.visited_nodes))
+        path_length_value.set_text(str(stats.path_length))
+        iterations_value.set_text(str(stats.iterations))
+
         main_window.draw()
         #TODO: Make EventHandler class
         for event in pygame.event.get():
@@ -544,17 +581,28 @@ def main(window, width, height):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and True:
                     map.reset()
+                    counter = 0
+                    stats.reset_stats()
+                    max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                    visited_nodes_value.set_text(str(stats.visited_nodes))
+                    path_length_value.set_text(str(stats.path_length))
+                    iterations_value.set_text(str(stats.iterations))
+                    
                     alg = StateMachine(map)
                     main_window.draw()
 
                     #for bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algorithm = alg.bfs
+                    # algorithm = alg.bfs
+                    # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    # algorithm = alg.dfs
+                    #for dfs_depth_limited !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    # algorithm = alg.dfs_limited
                     #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.bi_directional_bfs
                     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algorithm = alg.astar
+                    # algorithm = alg.astar
                     #for greedy !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    #algorithm = alg.greedy
+                    # algorithm = alg.greedy
                     #for iterative_astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     algorithm = alg.iterative_astar
 
@@ -626,17 +674,49 @@ def main(window, width, height):
 
                 if event.key == pygame.K_c:
                     map.clear()
+                    counter = 0
+                    stats.reset_stats()
+                    max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                    visited_nodes_value.set_text(str(stats.visited_nodes))
+                    path_length_value.set_text(str(stats.path_length))
+                    iterations_value.set_text(str(stats.iterations))
 
                 if event.key == pygame.K_r:
                     map.reset()
+                    counter = 0
+                    stats.reset_stats()
+                    max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                    visited_nodes_value.set_text(str(stats.visited_nodes))
+                    path_length_value.set_text(str(stats.path_length))
+                    iterations_value.set_text(str(stats.iterations))
 
                 if event.key == pygame.K_s:
                     operator = File_map_operator()
-                    operator.write_map(map = map, file_path = "map.txt")
+                    path_to_save = tkinter.filedialog.asksaveasfilename(defaultextension='.txt', initialfile = 'my_map')
+                    if path_to_save:
+                        operator.write_map(map = map, file_path = path_to_save)
+                        counter = 0
+                        stats.reset_stats()
+                        max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                        visited_nodes_value.set_text(str(stats.visited_nodes))
+                        path_length_value.set_text(str(stats.path_length))
+                        iterations_value.set_text(str(stats.iterations))
 
                 if event.key == pygame.K_l:
                     operator = File_map_operator()
-                    map = operator.read_map("map.txt")
+                    filetypes = (
+                            ('maps', '*.txt'),
+                            ('All files', '*.*')
+                        )
+                    filename = tkinter.filedialog.askopenfilename(filetypes=filetypes)
+                    if filename:
+                        map = operator.read_map(filename)
+                        counter = 0
+                        stats.reset_stats()
+                        max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                        visited_nodes_value.set_text(str(stats.visited_nodes))
+                        path_length_value.set_text(str(stats.path_length))
+                        iterations_value.set_text(str(stats.iterations))
                     table.link_table(map)
                     map.reset()
                     main_window.draw()
