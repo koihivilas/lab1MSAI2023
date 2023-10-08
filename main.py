@@ -1,3 +1,4 @@
+import tkinter
 import pygame
 import math
 import time
@@ -550,7 +551,8 @@ def main(window, width, height):
         # show stats here
         # if not is_working:
         stats.iterations = counter
-        stats.visited_nodes = map.count_visited_nodes()
+        if is_working:
+            stats.visited_nodes = map.count_visited_nodes()
         max_fringe_size_value.set_text(str(stats.max_fringe_size))
         visited_nodes_value.set_text(str(stats.visited_nodes))
         path_length_value.set_text(str(stats.path_length))
@@ -579,16 +581,14 @@ def main(window, width, height):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and True:
+                    map.reset()
                     counter = 0
                     stats.reset_stats()
-                    stats.iterations = counter
-                    stats.visited_nodes = map.count_visited_nodes()
                     max_fringe_size_value.set_text(str(stats.max_fringe_size))
                     visited_nodes_value.set_text(str(stats.visited_nodes))
                     path_length_value.set_text(str(stats.path_length))
                     iterations_value.set_text(str(stats.iterations))
-
-                    map.reset()
+                    
                     alg = StateMachine(map)
                     main_window.draw()
 
@@ -675,25 +675,49 @@ def main(window, width, height):
 
                 if event.key == pygame.K_c:
                     map.clear()
+                    counter = 0
+                    stats.reset_stats()
+                    max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                    visited_nodes_value.set_text(str(stats.visited_nodes))
+                    path_length_value.set_text(str(stats.path_length))
+                    iterations_value.set_text(str(stats.iterations))
 
                 if event.key == pygame.K_r:
                     map.reset()
+                    counter = 0
+                    stats.reset_stats()
+                    max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                    visited_nodes_value.set_text(str(stats.visited_nodes))
+                    path_length_value.set_text(str(stats.path_length))
+                    iterations_value.set_text(str(stats.iterations))
 
                 if event.key == pygame.K_s:
                     operator = File_map_operator()
-                    path_to_save = FileBrowser.prompt_savepath()
+                    path_to_save = tkinter.filedialog.asksaveasfilename(defaultextension='.txt', initialfile = 'my_map')
                     if path_to_save:
                         operator.write_map(map = map, file_path = path_to_save)
-                    else:
-                        operator.write_map(map = map, file_path = "map.txt")
+                        counter = 0
+                        stats.reset_stats()
+                        max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                        visited_nodes_value.set_text(str(stats.visited_nodes))
+                        path_length_value.set_text(str(stats.path_length))
+                        iterations_value.set_text(str(stats.iterations))
 
                 if event.key == pygame.K_l:
                     operator = File_map_operator()
-                    filename = FileBrowser.prompt_file()
+                    filetypes = (
+                            ('maps', '*.txt'),
+                            ('All files', '*.*')
+                        )
+                    filename = tkinter.filedialog.askopenfilename(filetypes=filetypes)
                     if filename:
                         map = operator.read_map(filename)
-                    else:
-                        map = operator.read_map("map.txt")
+                        counter = 0
+                        stats.reset_stats()
+                        max_fringe_size_value.set_text(str(stats.max_fringe_size))
+                        visited_nodes_value.set_text(str(stats.visited_nodes))
+                        path_length_value.set_text(str(stats.path_length))
+                        iterations_value.set_text(str(stats.iterations))
                     table.link_table(map)
                     map.reset()
                     main_window.draw()
