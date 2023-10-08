@@ -23,6 +23,7 @@ YELLOW = (255, 255, 0) # Color of the path nodes (default)
 PATH = YELLOW
 
 WHITE = (255, 255, 255) # Color of the empty nodes (default)
+EMPTY = WHITE
 LIGHT_GREY = (195, 195, 195) # Color of the grid (default)
 
 HAS_STEP_DELAY = False
@@ -33,24 +34,43 @@ HAS_PATH_DELAY = False
 PATH_DELAY = 0.005 # seconds (default)
 
 # amount of rows and cols in the grid (default) proportion is 3 : 5
-ROWS = 15
-COLS = 25
+ROWS = 30
+COLS = 50
 
 THUMBNAIL_SIZE = 10 # size of the thumbnail following mouse cursor (default)
 THUMBNAIL_MARGIN_X = 14 # margin of the thumbnail from mouse cursor (default)
 THUMBNAIL_MARGIN_Y = 8 # margin of the thumbnail from mouse cursor (default)
 
-DEPTH_LIMIT = 10 # depth limit for DFS (default)
+DEPTH_LIMIT = 2 # depth limit for DFS (default)
+
+# Uninformed search algorithms
+BFS = "BFS"
+DFS = "DFS"
+DFS_DEPTH_LIMITED = "DFS Depth Limited"
+BI_DIRECTIONAL = "Bi-Directional"
+
+# Informed search algorithms
+GREEDY = "Greedy"
+A_STAR = "A*"
+A_STAR_ITERATIVE = "A* Iterative"
+JPS = "JPS"
+
+GUI_PADDING_X = 200 # padding of the GUI (default) (right of the screen?)
+GUI_PADDING_Y = 200 # padding of the GUI (default) (bottom of the screen?)
 
 class Settings:
     # Grid and GUI
     rows = ROWS
     cols = COLS
 
+    gui_padding_x = GUI_PADDING_X
+    gui_padding_y = GUI_PADDING_Y
+
     # Pygame
     width = WIDTH
     height = HEIGHT
-    window = pygame.display.set_mode((width, height))
+
+    window = pygame.display.set_mode((width + gui_padding_x, height + gui_padding_y))
     caption = pygame.display.set_caption("Path Finding Visualization")
 
     # States (colors)
@@ -60,10 +80,17 @@ class Settings:
     start = START
     treasure = TREASURE
     path = PATH
+    empty = EMPTY
 
     # Colors
     white = WHITE
+    gray = GREY
     light_grey = LIGHT_GREY
+    light_blue = LIGHT_BLUE
+    light_green = LIGHT_GREEN
+    smooth_green = SMOOTH_GREEN
+    red_orange = RED_ORANGE
+    yellow = YELLOW
 
     # Delays
     has_step_delay = HAS_STEP_DELAY
