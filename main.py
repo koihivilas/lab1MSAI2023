@@ -596,7 +596,7 @@ def main(window, width, height):
                     # for dfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.dfs
                     #for dfs_depth_limited !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    # algorithm = alg.dfs_limited
+                    algorithm = alg.dfs_limited
                     #for bidirectional bfs !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # algorithm = alg.bi_directional_bfs
                     #for astar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

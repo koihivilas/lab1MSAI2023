@@ -332,6 +332,9 @@ class StateMachine:
         while len(open_set) != 0:
             if st.has_step_delay:
                 time.sleep(st.step_delay)
+
+            if len(open_set) > stats.max_fringe_size:
+                stats.max_fringe_size = len(open_set)
             
             current = open_set.pop()
             curr_depth = len(current.agent.position_history)
@@ -341,6 +344,7 @@ class StateMachine:
 
             if self.__is_final(current):
                 self.__reconstruct_path(current.agent.position_history[1:-1], Map_field_state.PATH)
+                stats.path_length = len(current.agent.position_history) - 1
                 return current
 
             for action in self.__possible_actions(current):
