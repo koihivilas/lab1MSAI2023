@@ -11,7 +11,6 @@ class State:
     def move(self, action : Direction) -> State:
         new_agent_position = self.agent.map_position + action
         new_agent = PseudoCleverAgent(new_agent_position, self.agent.position_history.copy(), deepcopy(self.agent.map_knowlege))
-        new_agent.reevaluate(new_agent_position)
         return State(new_agent)
 
     def __str__(self) -> str:

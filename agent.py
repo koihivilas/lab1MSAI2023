@@ -38,10 +38,10 @@ class PseudoCleverAgent:
         self.weak_exit_cost = 2
         self.posible_exit_cost = 3
         self.real_exit_cost = 4
-        self.potential_treasures_cost = -1
-        self.treasure_cost = -100
+        self.potential_treasures_cost = 1
+        self.treasure_cost = -1
         self.empty_cost = 2
-        self.decay = 1
+        self.decay = 0.5
         if map_knowlege is None:
             self.map_knowlege = [[Agent_assumption.empty for i in range(st.cols)] for j in range(st.rows)]
         else:
@@ -51,11 +51,17 @@ class PseudoCleverAgent:
         self.potential_exits = []
         self.weak_potential_exits = []
         self.real_exit = []
-        self.real_treasure = []
+        self.real_treasure = []        
+        self.reevaluate(agent_position)
     
     def reevaluate(self, position):
         map = Elements_container().elements["map"]
-        self.map_knowlege[position.y][position.x] = Agent_assumption.only_empty
+        if(position in map.get_treasure_positions()):
+            self.map_knowlege[position.y][position.x] = Agent_assumption.treasure
+        elif(position in map.get_exit_positions()):
+            self.map_knowlege[position.y][position.x] = Agent_assumption.exit
+        else:
+            self.map_knowlege[position.y][position.x] = Agent_assumption.only_empty
         for move in map.get_possible_moves(position):
             neighbor = position + move
             color = map.get_color_to(neighbor)
@@ -79,7 +85,7 @@ class PseudoCleverAgent:
                     neighbor_of_neighbor = neighbor + deep_move
                     assumption = self.map_knowlege[neighbor_of_neighbor.y][neighbor_of_neighbor.x]
                     if(assumption == Agent_assumption.empty):
-                        if(near[Agent_assumption.only_empty] > 1):
+                        if(near.get(Agent_assumption.only_empty, 0) > 1):
                             self.map_knowlege[neighbor_of_neighbor.y][neighbor_of_neighbor.x] = Agent_assumption.potential_exit
                         elif(Agent_assumption.exit in near.keys()):
                             self.map_knowlege[neighbor_of_neighbor.y][neighbor_of_neighbor.x] = Agent_assumption.weak_posible_exit
@@ -94,7 +100,7 @@ class PseudoCleverAgent:
                     neighbor_of_neighbor = neighbor + deep_move
                     assumption = self.map_knowlege[neighbor_of_neighbor.y][neighbor_of_neighbor.x]
                     if(assumption == Agent_assumption.empty):
-                        if(near[Agent_assumption.only_empty] > 1):
+                        if(near.get(Agent_assumption.only_empty, 0) > 1):
                             self.map_knowlege[neighbor_of_neighbor.y][neighbor_of_neighbor.x] = Agent_assumption.treasure
                         elif(Agent_assumption.treasure in near.keys()):
                             self.map_knowlege[neighbor_of_neighbor.y][neighbor_of_neighbor.x] = Agent_assumption.potential_treasure
@@ -126,21 +132,24 @@ class PseudoCleverAgent:
                 counter = 0
                 for move in map.get_possible_moves(Position(x,y)):
                     counter += 1
-                    if self.map_knowlege[y][x] == Agent_assumption.potential_treasure:
-                        calc += self.potential_treasures_cost
-                    elif self.map_knowlege[y][x] == Agent_assumption.treasure:
-                        calc += self.treasure_cost
-                    elif self.map_knowlege[y][x] == Agent_assumption.potential_exit:
-                        calc += self.posible_exit_cost
-                    elif self.map_knowlege[y][x] == Agent_assumption.weak_posible_exit:
-                        calc += self.weak_exit_cost
-                    elif self.map_knowlege[y][x] == Agent_assumption.exit:
-                        calc += self.real_exit_cost
-                    elif self.map_knowlege[y][x] == Agent_assumption.only_empty:
-                        calc += self.empty_cost
-                    elif self.map_knowlege[y][x] == Agent_assumption.empty:
-                        calc += self.empty_cost
-                calc -= counter * self.decay
+                    new_position = Position(x,y) + move
+                    y_2, x_2 = new_position.y, new_position.x
+                    if self.map_knowlege[y_2][x_2] == Agent_assumption.potential_treasure:
+                        calc += self.potential_treasures_cost / 2
+                    elif self.map_knowlege[y_2][x_2] == Agent_assumption.treasure:
+                        calc += self.treasure_cost / 2
+                    elif self.map_knowlege[y_2][x_2] == Agent_assumption.potential_exit:
+                        calc += self.posible_exit_cost / 2
+                    elif self.map_knowlege[y_2][x_2] == Agent_assumption.weak_posible_exit:
+                        calc += self.weak_exit_cost / 2
+                    elif self.map_knowlege[y_2][x_2] == Agent_assumption.exit:
+                        calc += self.real_exit_cost / 2
+                    elif self.map_knowlege[y_2][x_2] == Agent_assumption.only_empty:
+                        calc += self.empty_cost / 2
+                    elif self.map_knowlege[y_2][x_2] == Agent_assumption.empty:
+                        calc += self.empty_cost / 2
+                #calc -= counter * self.decay
+                calc = 0 if calc < 0 else calc
                 self.map_evaluation[y][x] = calc
 
     def get_evaluation(self, position):
